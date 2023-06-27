@@ -1,8 +1,6 @@
 import json
 from typing import List
 
-from src.utils.tg.tg_destination import TgDestination
-
 
 class Config:
   DEFAULT_CONFIG_FILE_NAME = 'config.json'
@@ -14,11 +12,8 @@ class Config:
     with open(filename) as file:
       self.data = json.load(file)
   
-  def loggingDefaultChats(self) -> [TgDestination]:
-    return [ TgDestination(
-      chat_id=d['chat_id'],
-      message_to_replay_id=d.get('message_to_replay_id')
-    ) for d in self._paramOrNone('logging_default_chats', list)]
+  def loggingDefaultChats(self) -> [int]:
+    return self._paramOrNone('logging_default_chats', list)
   
   def loggingDateFormat(self) -> str:
     return self._paramOrNone('logging_date_format', str)

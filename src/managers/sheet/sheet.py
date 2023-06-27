@@ -46,5 +46,5 @@ class Sheet(LocatorStorage):
     monthes = list(map(lambda row: [row[0], dt.datetime.strptime(row[1], self.dateFmt)], monthes))
     for i in range(len(monthes) - 1):
       if monthes[i][1] <= dt.datetime.now() < monthes[i + 1][1]:
-        return int(monthes[i][0])
-    return int(monthes[-1][0]) if len(monthes) > 0 else None
+        return monthes[i][0]
+    return monthes[-1][0] if len(monthes) > 0 else None

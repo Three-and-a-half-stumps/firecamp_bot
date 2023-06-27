@@ -513,7 +513,7 @@ class User(TgState, LocatorStorage):
   # CHECKS
   def _checkTrusted(self, checkGroup=False):
     if (self.chat.chatId in self.config.trustedUsers() or
-        checkGroup and self.chat.chatId == self.config.tgGroupId()):
+        checkGroup and self.chat.chatId == -self.config.tgGroupId()):
       return True
     self.send('Я вас не звал, идите наЬ#Я')
 
