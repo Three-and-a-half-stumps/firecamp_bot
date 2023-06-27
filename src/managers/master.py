@@ -85,7 +85,7 @@ class Master(LocatorStorage):
   def alertPayOff(self, value: int):
     asyncio.create_task(send_message(
       tg=self.locator.tg(),
-      chat=-self.locator.config().tgGroupId(),
+      chat=self.locator.config().tgGroupId(),
       text=P(f"Ура! Мы теперь работаем не платно. Накопили уже {value}",
              emoji='infoglob')
     ))

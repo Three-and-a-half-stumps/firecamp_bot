@@ -36,10 +36,11 @@ class TgLogger:
   ):
     text, entities = pieces.toMessage()
     for chat in self.chats:
-      if chat == chat_id:
+      if chat.chatId == chat_id:
         continue
       asyncio.create_task(self.tg.send_message(
-        chat_id=chat,
+        chat_id=chat.chatId,
+        reply_to_message_id=chat.messageToReplayId,
         text=text,
         entities=entities,
         **kwargs))
