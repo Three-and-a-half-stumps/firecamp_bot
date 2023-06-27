@@ -358,7 +358,7 @@ class User(TgState, LocatorStorage):
 
 
   async def handleTotal(self):
-    if not self._checkTrusted():
+    if not self._checkTrusted(checkGroup=True):
       return
     self.send(f"{self.master.getMonthlyTotal()}р.")
 
