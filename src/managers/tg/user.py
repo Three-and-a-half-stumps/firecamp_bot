@@ -360,7 +360,7 @@ class User(TgState, LocatorStorage):
   async def handleTotal(self):
     if not self._checkTrusted():
       return
-    self.send(f"{self.master.getMonthlyTotal()}р.")
+    self.send(f"{self.master.getMonthlyTotal()}р. А это аж {self.master.getMonthlyTotal() / self.config.lease() * 100}% от аренды.")
 
 
   async def handleReadd(self):

@@ -75,6 +75,9 @@ class Config:
   def devUsers(self) -> List[int]:
       return self._paramOrNone('dev_users', list)
 
+  def lease(self) -> int:
+    return self._paramOrNone('lease', int)
+
   def _paramOrNone(self, name: str, tp):
     return Config._valueOrNone(self.data.get(name), tp)
   
