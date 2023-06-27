@@ -77,8 +77,6 @@ def handle_{command.name}(user, m, __):
         asyncio.create_task(user.handleCallbackQuery(q))
         
   def _findUser(self, chatId) -> Optional[User]:
-    if chatId < 0:
-      return None
     return self.users.setdefault(
       chatId,
       User(self.locator, TgDestination(chat_id=chatId))
