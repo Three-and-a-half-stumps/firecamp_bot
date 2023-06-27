@@ -18,7 +18,7 @@ class Vk(LocatorStorage):
     
   def makePost(self, text: str):
     self.api.wall.post(
-      owner_id=-self.groupId,
+      owner_id=self.groupId,
       message=text,
       from_group=1,
     )
@@ -28,12 +28,12 @@ class Vk(LocatorStorage):
     """return vkId"""
     response = self.upload.photo_market(
       photo=thing.photoFilename,
-      group_id=self.config.vkGroupId(),
+      group_id=self.groupId,
       main_photo=True,
     )
     photo_id = response[0]['id']
     response = self.api.market.add(
-      owner_id=-self.groupId,
+      owner_id=self.groupId,
       name=thing.name,
       description=thing.description,
       category_id=thing.vkCategory,
@@ -44,7 +44,7 @@ class Vk(LocatorStorage):
     thing.vkId = int(response['market_item_id'])
     try:
       self.api.market.addToAlbum(
-        owner_id=-self.groupId,
+        owner_id=self.groupId,
         item_ids=str(thing.vkId),
         album_ids=str(category2vkAlbumId(thing.category)),
       )
@@ -57,7 +57,7 @@ class Vk(LocatorStorage):
     """without photo"""
     self.api.market.edit(
       item_id=thing.vkId,
-      owner_id=-self.groupId,
+      owner_id=self.groupId,
       name=thing.name,
       description=thing.description,
       category_id=thing.vkCategory,
@@ -69,7 +69,7 @@ class Vk(LocatorStorage):
   def removeProduct(self, vkId: int):
     self.api.market.delete(
       item_id=vkId,
-      owner_id=-self.groupId,
+      owner_id=self.groupId,
     )
   
   
