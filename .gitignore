@@ -1,0 +1,10 @@
+photos
+.*
+__pycache__
+venv
+*.json
+*.jpeg
+files
+lira
+lira.back
+out.log
