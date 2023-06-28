@@ -360,7 +360,16 @@ class User(TgState, LocatorStorage):
   async def handleTotal(self):
     if not self._checkTrusted():
       return
-    self.send(f"{self.master.getMonthlyTotal()}р.")
+
+    def gettimedif() -> int:
+      import datetime as dt
+      curtime = dt.datetime.today()
+      monthtime = dt.datetime.strftime(curtime, "%d,%m,%Y").split(",")
+      lasttime = dt.datetime(int(monthtime[2]), int(monthtime[1]) + 1, 1)
+      timedif = lasttime - curtime
+      return f"{timedif.days}д. {round(timedif.seconds / 3600, 1)}ч."
+    self.send(f"{self.master.getMonthlyTotal()}р.\
+ До конца месяца осталось {gettimedif()}")
 
 
   async def handleReadd(self):
