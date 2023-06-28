@@ -360,7 +360,6 @@ class User(TgState, LocatorStorage):
   async def handleTotal(self):
     if not self._checkTrusted():
       return
-
     def gettimedif() -> int:
       import datetime as dt
       curtime = dt.datetime.today()
