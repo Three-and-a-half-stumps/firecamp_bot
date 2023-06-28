@@ -37,6 +37,10 @@ class Repo(LocatorStorage):
     self.lira.flush()
     return article
 
+  def getThingsByRail(self, rail: int) -> List[Thing]:
+    return list(filter(lambda id: self.lira.get(id).rail == rail, self.lira[Repo.THING_CATEGORY]))
+
   def getAllThings(self) -> List[Thing]:
     return list(
       map(lambda id: self.lira.get(id), self.lira[Repo.THING_CATEGORY]))
+

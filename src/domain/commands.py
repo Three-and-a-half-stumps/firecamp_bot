@@ -72,5 +72,17 @@ global_command_list = [
       'handleTotal',
       True,
     ),
+    (
+      'things_count', '/things_count',
+      'Узнать количество всех вещей',
+      'handleThingsCount',
+      True,
+    ),
+    (
+      'things_count_by_rail', '/things_count_by_rail',
+      'Узнать количество вещей на рейле',
+      'handleThingsByRailCount',
+      True,
+    ),
   ]
 ]

@@ -394,6 +394,28 @@ class User(TgState, LocatorStorage):
         ],
       ))
 
+  async def handleThingsCount(self):
+    if not self._checkTrusted():
+      return
+    self.send(f"Вещей - {self.master.getThingsCount()} шт.")
+
+  async def handleThingsByRailCount(self):
+    if not self._checkTrusted():
+      return
+
+    async def railEntered(rail):
+      self.send(f"Вещей на {rail} рейле - {self.master.getThingsByRailCount(rail)} шт.")
+      await self.resetTgState()
+
+    await self.setTgState(TgInputField(
+      tg=self.tg,
+      chat=self.chat,
+      greeting='Введите номер рейла',
+      validator=FunctionValidator(self.validateRailNum),
+      on_field_entered=railEntered,
+    ))
+
+
   # ACCESSORY
   def send(self, text):
     asyncio.create_task(send_message(tg=self.tg, chat=self.chat, text=text))
