@@ -104,7 +104,7 @@ class Locator:
       from telebot.async_telebot import AsyncTeleBot
       self._tgLog = AsyncTeleBot(token=self.config().tgLogToken())
     return self._tgLog
-  
+
   def vk(self):
     if self._vk is None:
       from src.managers.vk.vk import Vk
