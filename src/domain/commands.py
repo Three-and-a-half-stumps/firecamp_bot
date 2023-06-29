@@ -1,4 +1,5 @@
 class Command:
+
   def __init__(
     self,
     name: str,
@@ -17,52 +18,59 @@ class Command:
 global_command_list = [
   Command(*args) for args in [
     (
-      'start', '/start',
+      'start',
+      '/start',
       '',
       'handleStart',
     ),
     (
-      'new', '/new',
+      'new',
+      '/new',
       'Добавить вещь',
       'handleNew',
       True,
     ),
     (
-      'find', '/find',
+      'find',
+      '/find',
       'Найти рейл вещи',
       'handleFind',
       True,
     ),
     (
-      'move', '/move',
+      'move',
+      '/move',
       'Перевесить вещь',
       'handleMove',
       True,
     ),
     (
-      'sale', '/sale',
+      'sale',
+      '/sale',
       'Продать вещь',
       'handleSale',
       True,
     ),
     (
-      'sale_untagged', '/sale_untagged',
+      'sale_untagged',
+      '/sale_untagged',
       'Продать вещь без бирки',
       'handleSaleUntagged',
       True,
     ),
     (
-      'delete', '/delete',
+      'delete',
+      '/delete',
       'Выбросить вещь',
       'handleDelete',
       True,
     ),
     (
-      'total', '/total',
+      'total',
+      '/total',
       'Узнать приход в текущем месяце',
       'handleTotal',
       True,
     ),
   ]
 ]
-    

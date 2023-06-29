@@ -15,6 +15,7 @@ class TgInputForm(TgState):
   """
   Формочка, в которой последовательно вводятся некоторые данные
   """
+
   def __init__(
     self,
     tg: AsyncTeleBot,
@@ -31,7 +32,7 @@ class TgInputForm(TgState):
     :param terminate_message: сообщение, выводящееся, если ввод формы прерван
     """
     super().__init__(on_enter_state=self._onEnterState)
-    assert(len(fields) != 0)
+    assert (len(fields) != 0)
     self.tg = tg
     self.chat = chat
     self.fields = fields
@@ -40,36 +41,35 @@ class TgInputForm(TgState):
     self.data = [None] * len(self.fields)
     callbacks = [copy(field.onFieldEntered) for field in self.fields]
     for i in range(len(self.fields)):
+
       async def on_field_entered(data, num):
         callbacks[num](data)
         await self._onFieldDataEntered(data)
-      self.fields[i].onFieldEntered = CallbackWrapper(on_field_entered, num=copy(i))
 
-  
+      self.fields[i].onFieldEntered = CallbackWrapper(on_field_entered,
+                                                      num=copy(i))
+
   # OVERRIDE METHODS
   async def _onTerminate(self):
     if self.terminate_message is not None:
-      asyncio.create_task(send_message(
-        tg=self.tg,
-        chat=self.chat,
-        text=self.terminate_message
-      ))
+      asyncio.create_task(
+        send_message(tg=self.tg, chat=self.chat, text=self.terminate_message))
 
   async def _handleMessage(self, m: Message) -> bool:
     raise Exception('Сообщение всегда должно обрабатываться в TgInputField')
 
   async def _handleCallbackQuery(self, q: CallbackQuery) -> bool:
     return False
-  
+
   # MAIN METHODS
   async def _onEnterState(self):
     await self.setTgState(self.fields[0])
-    
+
   async def _onFieldDataEntered(self, data):
     index = self.fields.index(self._substate)
     self.data[index] = data
     if index + 1 < len(self.fields):
-      await self.setTgState(self.fields[index+1])
+      await self.setTgState(self.fields[index + 1])
     else:
       await maybeAwait(self.onFormEntered(self.data))
 

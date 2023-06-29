@@ -13,6 +13,7 @@ class TgState:
   - установить обработчики сообщений и запросов (перегрузите соответствующие функции)
   - устанавливать подсостояния, которым будет делегировать обработка сообщений и запросов
   """
+
   def __init__(
     self,
     on_enter_state: Callable = None,
@@ -22,22 +23,20 @@ class TgState:
     """
     self._onEnterState = on_enter_state
     self._substate = None
-    
-    
+
   async def start(self) -> None:
     """
     Должно быть вызвано при вхождении в состояние
     """
     if self._onEnterState is not None:
       await maybeAwait(self._onEnterState())
-      
-      
+
   async def terminate(self):
     """
     Должно быть вызвано после выхода из состояния
     """
     await self._onTerminate()
-    
+
   async def terminateSubstate(self):
     """
     Вызывается, когда завершается подстотояние
@@ -45,7 +44,7 @@ class TgState:
     if self._substate is not None:
       await self._substate.terminate()
       await self.resetTgState()
-    
+
   async def setTgState(self, state, silent=False, terminate=True):
     """
     Установка подсостояния
@@ -59,13 +58,13 @@ class TgState:
     self._substate = state
     if not silent:
       await state.start()
-    
+
   async def resetTgState(self):
     """
     Очищает подсостояние
     """
     self._substate = None
-  
+
   async def handleMessage(self, m: Message) -> bool:
     """
     Обрабатывает сообщение (можно перегрузить метод _handleMessageBefore в дочернем классе,
@@ -88,17 +87,18 @@ class TgState:
     :param q: запрос, который нужно обработать
     :return: был ли обработан запрос
     """
-    if self._substate is not None and await self._substate.handleCallbackQuery(q):
+    if self._substate is not None and await self._substate.handleCallbackQuery(q
+                                                                              ):
       return True
     return await self._handleCallbackQuery(q)
-  
+
   @abstractmethod
   async def _onTerminate(self):
     """
     Вызывается при завершении состояния
     """
     pass
-  
+
   @abstractmethod
   async def _handleMessageBefore(self, m: Message) -> bool:
     """
