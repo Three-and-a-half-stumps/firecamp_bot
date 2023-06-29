@@ -1,6 +1,9 @@
-from typing import Optional
+import datetime as dt
 
-THING_CATEGORY = 'THING_CATEGORY'
+from typing import Optional, Dict, Any
+
+from src.utils.notifier import Notifier
+from src.utils.serializable import Serializable
 
 
 class Category:
@@ -25,7 +28,21 @@ class Category:
     ]
 
 
-class Price:
+class Price(Serializable):
+
+  def serialize(self) -> Dict[str, Any]:
+    return {
+      'type': self.type,
+      'fixedPrice': self.fixedPrice,
+    }
+
+  @staticmethod
+  def deserialize(values: Dict[str, Any]):
+    return Price(
+      type=values['type'],
+      fixedPrice=values.get('fixedPrice'),
+    )
+
   FREE = 'FREE'  # свободная цена (сколько угодно)
   DEFAULT_FIXED = 'DEFAULT_FIXED'  # минимум 600 рублей (на платном рейле)
   FIXED = 'FIXED'  # экстравагантные случаи вроде Серёги
@@ -41,7 +58,33 @@ class Price:
                                          self.fixedPrice == other.fixedPrice))
 
 
-class Thing:
+class Thing(Serializable, Notifier):
+  def serialize(self) -> Dict[str, Any]:
+    return {
+      'article': self.article,
+      'rail': self.rail,
+      'name': self.name,
+      'vkCategory': self.vkCategory,
+      'category': self.category,
+      'description': self.description,
+      'price': self.price.serialize(),
+      'vkId': self.vkId,
+      'timestamp': self.timestamp,
+    }
+
+  @staticmethod
+  def deserialize(values: Dict[str, Any]):
+    return Thing(
+      article=values['article'],
+      rail=values['rail'],
+      name=values['name'],
+      vkCategory=values.get('vkCategory'),
+      category=values.get('category'),
+      description=values['description'],
+      price=Price.deserialize(values['price']),
+      vkId=values['vkId'],
+      timestamp=values.get('timestamp'),
+    )
 
   def __init__(
     self,
@@ -50,11 +93,13 @@ class Thing:
     name: Optional[str] = None,
     photoFilename: Optional[str] = None,
     vkCategory: Optional[int] = None,
-    category: Optional[Category] = None,
+    category: Optional[str] = None,
     description: Optional[str] = None,
     price: Optional[Price] = None,
     vkId: Optional[int] = None,
+    timestamp: Optional[dt.datetime] = None,
   ):
+    Notifier.__init__(self)
     self.article = article
     self.rail = rail
     self.name = name
@@ -64,6 +109,7 @@ class Thing:
     self.description = description
     self.price = price
     self.vkId = vkId
+    self.timestamp = timestamp or dt.datetime.today()
 
   def __str__(self):
     return str(self.__dict__)

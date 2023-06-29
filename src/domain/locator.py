@@ -18,6 +18,7 @@ class Locator:
     self._sysLogger = None
     self._tg = None
     self._tgLog = None
+    self._thingsRepo = None
     self._vk = None
 
   def commandsManager(self):
@@ -104,6 +105,12 @@ class Locator:
       from telebot.async_telebot import AsyncTeleBot
       self._tgLog = AsyncTeleBot(token=self.config().tgLogToken())
     return self._tgLog
+
+  def thingsRepo(self):
+    if self._thingsRepo is None:
+      from src.repositories.things_repo import ThingsRepo
+      self._thingsRepo = ThingsRepo(self.lira())
+    return self._thingsRepo
 
   def vk(self):
     if self._vk is None:
