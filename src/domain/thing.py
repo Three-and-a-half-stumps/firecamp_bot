@@ -9,7 +9,7 @@ class Category:
   ACCESSORIES = 'Аксессуары'
   BOOKS = 'Книги'
   OTHER = 'Другое'
-  
+
   @staticmethod
   def getList() -> [str]:
     return [
@@ -21,27 +21,26 @@ class Category:
       Category.BOOKS,
       Category.OTHER,
     ]
- 
- 
+
 
 class Price:
-  FREE = 'FREE' # свободная цена (сколько угодно)
-  DEFAULT_FIXED = 'DEFAULT_FIXED' # минимум 600 рублей (на платном рейле)
-  FIXED = 'FIXED' # экстравагантные случаи вроде Серёги
-  
+  FREE = 'FREE'  # свободная цена (сколько угодно)
+  DEFAULT_FIXED = 'DEFAULT_FIXED'  # минимум 600 рублей (на платном рейле)
+  FIXED = 'FIXED'  # экстравагантные случаи вроде Серёги
+
   def __init__(self, type: str, fixedPrice: Optional[int] = None):
     self.type = type
     self.fixedPrice = fixedPrice
-    
+
   def __eq__(self, other):
     if not isinstance(other, Price):
       return False
-    return (self.type == other.type and
-            (not self.type == Price.FIXED or self.fixedPrice == other.fixedPrice))
-  
+    return (self.type == other.type and (not self.type == Price.FIXED or
+                                         self.fixedPrice == other.fixedPrice))
 
 
 class Thing:
+
   def __init__(
     self,
     article: Optional[int] = None,
@@ -63,7 +62,7 @@ class Thing:
     self.description = description
     self.price = price
     self.vkId = vkId
-    
+
   def __str__(self):
     return str(self.__dict__)
 

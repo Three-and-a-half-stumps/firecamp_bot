@@ -6,23 +6,24 @@ from src.utils.tg.tg_destination import TgDestination
 
 class Config:
   DEFAULT_CONFIG_FILE_NAME = 'config.json'
-  
+
   def __init__(self, filename: str = None):
     self.data = dict()
     if filename is None:
       filename = Config.DEFAULT_CONFIG_FILE_NAME
     with open(filename) as file:
       self.data = json.load(file)
-  
+
   def loggingDefaultChats(self) -> [TgDestination]:
-    return [ TgDestination(
-      chat_id=d['chat_id'],
-      message_to_replay_id=d.get('message_to_replay_id')
-    ) for d in self._paramOrNone('logging_default_chats', list)]
-  
+    return [
+      TgDestination(chat_id=d['chat_id'],
+                    message_to_replay_id=d.get('message_to_replay_id'))
+      for d in self._paramOrNone('logging_default_chats', list)
+    ]
+
   def loggingDateFormat(self) -> str:
     return self._paramOrNone('logging_date_format', str)
-  
+
   def loggingFormat(self) -> str:
     return self._paramOrNone('logging_format', str)
 
@@ -73,16 +74,16 @@ class Config:
 
   def liraDataFile(self) -> str:
     return self._paramOrNone('lira_data_file', str)
-  
+
   def trustedUsers(self) -> List[int]:
     return self._paramOrNone('trusted_users', list)
 
   def devUsers(self) -> List[int]:
-      return self._paramOrNone('dev_users', list)
+    return self._paramOrNone('dev_users', list)
 
   def _paramOrNone(self, name: str, tp):
     return Config._valueOrNone(self.data.get(name), tp)
-  
+
   @staticmethod
   def _valueOrNone(value, tp):
     return value if type(value) is tp else None

@@ -57,7 +57,7 @@ class Lira:
     _data — имя файла для хранения самих объектов
     _head — и имя файла заголовков
     """
-    self.__dict__['_fpls'] = { (0, 2**40) }
+    self.__dict__['_fpls'] = {(0, 2**40)}
     self.__dict__['_objs'] = dict()
     self.__dict__['_objv'] = dict()
     self.__dict__['_cats'] = dict()
@@ -71,8 +71,6 @@ class Lira:
     self.__dict__['_head'] = _head
     self.read_head()
     return
-
-
 
   def flush(self):
     """
@@ -92,8 +90,6 @@ class Lira:
     """Проверяет, была ли Лира изменена"""
     return self.__dict__['_chng']
 
-
-
   def read_head(self, _head=None):
     """Читает файл заголовков"""
     with self._lock:
@@ -105,8 +101,7 @@ class Lira:
           self.__dict__['_objs'] = pickle.load(file)
           self.__dict__['_cats'] = pickle.load(file)
         self.__dict__['_mnid'] = min(
-          filter(lambda x: isinstance(x, int), self._objs.keys())
-        ) - 1
+          filter(lambda x: isinstance(x, int), self._objs.keys())) - 1
       except:
         pass
     return
@@ -146,8 +141,6 @@ class Lira:
         return id
     return None
 
-
-
   def cats(self):
     """Итератор по всем категориям"""
     return self._cats.keys()
@@ -156,7 +149,6 @@ class Lira:
     """Итератор по всем id"""
     for key in self._objs.keys():
       yield key
-
 
   def get(self, id, default=None):
     """
@@ -198,8 +190,6 @@ class Lira:
       id = self._put(obj, id, cat, meta)
     return id
 
-
-
   def out(self, id):
     """
     Удаление существующего объекта ничего
@@ -221,8 +211,6 @@ class Lira:
     val = self.get(id, default)
     self.out(id)
     return val
-
-
 
   def __call__(self, id, default=None):
     """
@@ -251,8 +239,6 @@ class Lira:
     with self._lock:
       return list(self._cats.get(item, []))
 
-
-
   def _put(self, obj, id, cat, meta):
     self.__dict__['_chng'] = True
     dump = pickle.dumps(obj)
@@ -265,8 +251,6 @@ class Lira:
     self._objv[id] = obj
     self._cats.setdefault(cat, set()).add(id)
     return id
-
-
 
   def _free(self, pl):
     self._fpls.add(pl)
@@ -303,7 +287,7 @@ class Lira:
 
     self._fpls.remove(best)
     if s != best[1]:
-      self._fpls.add( (best[0] + s, best[1] - s) )
+      self._fpls.add((best[0] + s, best[1] - s))
 
     return best[0], s
 

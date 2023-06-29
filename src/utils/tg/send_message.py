@@ -30,8 +30,8 @@ async def send_message(
   text: Union[str, Pieces],
   media: [] = None,
   media_type: Union[str, TgMediaType] = None,
-  disable_web_page_preview = True,
-  reply_markup = None,
+  disable_web_page_preview=True,
+  reply_markup=None,
   answer_callback_query_id: int = None,
   answer_callback_query_text: str = None,
 ) -> List[Message]:
@@ -68,22 +68,28 @@ async def send_message(
   if media_exists and len(text) > 1000 or len(text) > 3900:
     first_len = 1000 if media_exists else 3900
     m = []
-    m += await send_message(tg, chat, pieces[0:first_len],
-                      media=media, media_type=media_type,
-                      disable_web_page_preview=disable_web_page_preview,
-                      reply_markup=reply_markup,
-                      answer_callback_query_id=answer_callback_query_id,
-                      answer_callback_query_text=answer_callback_query_text)
+    m += await send_message(
+      tg,
+      chat,
+      pieces[0:first_len],
+      media=media,
+      media_type=media_type,
+      disable_web_page_preview=disable_web_page_preview,
+      reply_markup=reply_markup,
+      answer_callback_query_id=answer_callback_query_id,
+      answer_callback_query_text=answer_callback_query_text)
     original_chat = copy(chat)
     for i in range(first_len, len(text), 3900):
       if chat.translateToMessageId is not None:
         chat.translateToMessageId = original_chat.translateToMessageId + len(m)
-      m += await send_message(tg, chat, pieces[i:i+3900],
-                        disable_web_page_preview=disable_web_page_preview)
+      m += await send_message(tg,
+                              chat,
+                              pieces[i:i + 3900],
+                              disable_web_page_preview=disable_web_page_preview)
     return m
 
   kwargs = {
-    'chat_id' : chat.chatId,
+    'chat_id': chat.chatId,
   }
 
   if media_exists:
@@ -98,20 +104,22 @@ async def send_message(
     if 'media' in kwargs:
       media = kwargs.pop('media')
       m = [None] * len(media)
+
       async def fun(index):
         m[index] = await tg.edit_message_media(
-          **kwargs,media=media[index],
-          message_id=chat.translateToMessageId + index
-        )
+          **kwargs,
+          media=media[index],
+          message_id=chat.translateToMessageId + index)
+
       for i in range(len(media)):
         await _ignore_message_is_not_modified(lambda: fun(i))
     else:
       m = [None]
+
       async def fun():
-        m[0] = await tg.edit_message_text(
-          **kwargs,
-          message_id=chat.translateToMessageId
-        )
+        m[0] = await tg.edit_message_text(**kwargs,
+                                          message_id=chat.translateToMessageId)
+
       await _ignore_message_is_not_modified(fun)
   else:
     kwargs['reply_to_message_id'] = chat.messageToReplayId
@@ -137,8 +145,10 @@ def _transform_media(media: [], type: TgMediaType, text, entities) -> []:
     TgMediaType.VIDEO: InputMediaVideo,
     TgMediaType.AUDIO: InputMediaAudio,
   }.get(type)
-  return [type(media=media[0], caption=text, caption_entities=entities),
-          *[type(media=m) for m in media[1:]]]
+  return [
+    type(media=media[0], caption=text, caption_entities=entities),
+    *[type(media=m) for m in media[1:]]
+  ]
 
 
 async def _ignore_message_is_not_modified(fun):

@@ -17,6 +17,7 @@ class InputFieldButton:
   """
   Одна из кнопок, которую можно нажать вместо ручного ввода значения
   """
+
   def __init__(self, title: str, data, answer: str = None):
     """
     :param title: какой текст будет отображён на кнопке
@@ -40,6 +41,7 @@ class TgInputField(TgState):
   - Устанавливать кнопки, по нажатию на которые возвращается любые данные в качестве введённых
   - Вызывает коллбэк, когда значение успешно введено (или нажата кнопка)
   """
+
   def __init__(
     self,
     tg: AsyncTeleBot,
@@ -82,9 +84,7 @@ class TgInputField(TgState):
       send_message(tg=self.tg,
                    chat=self.chat,
                    text=greeting,
-                   reply_markup=self._makeMarkup())
-    ))
-
+                   reply_markup=self._makeMarkup())))
 
   # OVERRIDE METHODS
   async def _onTerminate(self):
@@ -92,12 +92,8 @@ class TgInputField(TgState):
     Когда ввод прерван, выводим сообщение о прерванном вводе
     """
     if self.terminateMessage is not None:
-      asyncio.create_task(send_message(
-        tg=self.tg,
-        chat=self.chat,
-        text=self.terminateMessage
-      ))
-
+      asyncio.create_task(
+        send_message(tg=self.tg, chat=self.chat, text=self.terminateMessage))
 
   async def _handleMessage(self, m: Message):
     """
@@ -106,17 +102,14 @@ class TgInputField(TgState):
     
     :param m: сообщение, которое нужно обработать
     """
-    answer = await maybeAwait(self.validator.validate(ValidatorObject(message=m)))
+    answer = await maybeAwait(
+      self.validator.validate(ValidatorObject(message=m)))
     if not answer.success:
-      asyncio.create_task(send_message(
-        tg=self.tg,
-        chat=self.chat,
-        text=answer.error
-      ))
+      asyncio.create_task(
+        send_message(tg=self.tg, chat=self.chat, text=answer.error))
     else:
       await maybeAwait(self.onFieldEntered(answer.data))
     return True
-
 
   async def _handleCallbackQuery(self, q: CallbackQuery):
     """
@@ -130,14 +123,12 @@ class TgInputField(TgState):
     for row in self.buttons:
       for button in row:
         if q.data == button.qb:
-          await self.tg.answer_callback_query(
-            callback_query_id=q.id,
-            text=button.answer or f'Выбрано {button.title}'
-          )
+          await self.tg.answer_callback_query(callback_query_id=q.id,
+                                              text=button.answer or
+                                              f'Выбрано {button.title}')
           await maybeAwait(self.onFieldEntered(button.data))
           return True
     return False
-
 
   # SERVICE METHODS
   def _makeMarkup(self) -> Optional[InlineKeyboardMarkup]:
@@ -150,9 +141,9 @@ class TgInputField(TgState):
       return None
     markup = InlineKeyboardMarkup()
     for row in self.buttons:
-      markup.add(*[InlineKeyboardButton(text=b.title, callback_data=b.qb)
-                   for b in row],
-                 row_width=len(row))
+      markup.add(
+        *[InlineKeyboardButton(text=b.title, callback_data=b.qb) for b in row],
+        row_width=len(row))
     return markup
 
   async def _handleMessageBefore(self, m: Message) -> bool:

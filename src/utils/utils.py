@@ -5,10 +5,11 @@ from typing import Callable, Iterable, Any
 
 
 class CallbackWrapper:
+
   def __init__(self, callback: Callable, **kwargs):
     self.kwargs = kwargs
     self.callback = callback
-  
+
   def __call__(self, *args, **kwargs):
     for key, value in self.kwargs.items():
       kwargs[key] = value
