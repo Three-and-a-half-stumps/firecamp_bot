@@ -32,6 +32,9 @@ class Config:
   def tgToken(self) -> str:
     return self._paramOrNone('tg_token', str)
 
+  def tgLogToken(self) -> str:
+    return self._paramOrNone('tg_log_token', str)
+
   def tgGroupId(self) -> int:
     return self._paramOrNone('tg_group_id', int)
 
