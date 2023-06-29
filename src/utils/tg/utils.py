@@ -8,10 +8,9 @@ def button_row_layout(count: int) -> List[int]:
   :param count: количество кнопок
   :return: список чисел, каждое из которых представляет сколько кнопок должно быть в данном ряду
   """
-  return ([]      if count < 1  else
-          [count] if count <= 3 else
-          [2, 2]  if count == 4 else
-          [3] + button_row_layout(count-3))
+  return ([] if count < 1 else
+          [count] if count <= 3 else [2, 2] if count == 4 else [3] +
+          button_row_layout(count - 3))
 
 
 def list_to_layout(elems: []) -> List[List]:
@@ -30,6 +29,6 @@ def list_to_layout(elems: []) -> List[List]:
   pos = 0
   result = []
   for row_width in layout:
-    result.append([elems[i] for i in range(pos, pos+row_width)])
+    result.append([elems[i] for i in range(pos, pos + row_width)])
     pos += row_width
   return result

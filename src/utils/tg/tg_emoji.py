@@ -1,5 +1,5 @@
 class Emoji:
-  EDIT = '✍️' # ✏️️💉
+  EDIT = '✍️'  # ✏️️💉
   WARNING = '⚠️'
   BANANA = '🍌'
   SWORD = '⚔️'
@@ -12,7 +12,8 @@ class Emoji:
   OFFICER = '🫡'
   SPIKE = '🖖'
   POINT_RIGHT = '👉'
-  
+
+
 def get_emoji(emoji: str = None):
   return {
     'edit': Emoji.EDIT,

@@ -8,6 +8,7 @@ from src.utils.tg.tg_destination import TgDestination
 
 
 class TelegramLoggerStream:
+
   def __init__(self, tg: AsyncTeleBot, chats: List[TgDestination]):
     self.tg = tg
     self.chats = chats
@@ -18,6 +19,5 @@ class TelegramLoggerStream:
         self.tg.send_message(chat_id=chat.chatId,
                              reply_to_message_id=chat.messageToReplayId,
                              text=report,
-                             disable_web_page_preview=True)
-      )
+                             disable_web_page_preview=True))
     stdout.write(report)

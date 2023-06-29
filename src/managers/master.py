@@ -9,13 +9,14 @@ from src.utils.tg.send_message import send_message
 
 
 class Master(LocatorStorage):
+
   def __init__(self, locator: Locator):
     super().__init__(locator)
     self.repo = self.locator.repo()
     self.vk = self.locator.vk()
     self.sheet = self.locator.sheet()
     pass
-  
+
   def newThing(self, thing: Thing) -> int:
     thing.article = self.repo.makeNextArticle()
     thing.vkId = self.vk.addProduct(thing)
@@ -59,7 +60,7 @@ class Master(LocatorStorage):
 
   def getMonthlyTotal(self) -> Optional[int]:
     return self.sheet.getMonthlyTotal()
-  
+
   def removeThing(self, article: int) -> bool:
     thing = self.repo.getThing(article)
     if thing is None:
@@ -67,7 +68,7 @@ class Master(LocatorStorage):
     self.vk.removeProduct(thing.vkId)
     self.repo.removeThing(article)
     return True
-  
+
   def sellThing(
     self,
     price: int,
@@ -78,17 +79,20 @@ class Master(LocatorStorage):
       self.sheet.addPurchase(price, paymentType)
       return True
     return False
-  
+
   def getAllThings(self) -> List[Thing]:
     return self.repo.getAllThings()
 
   def alertPayOff(self, value: int):
-    asyncio.create_task(send_message(
-      tg=self.locator.tg(),
-      chat=self.locator.config().tgGroupId(),
-      text=P(f"Ура! Мы теперь работаем не платно. Накопили уже {value}",
-             emoji='infoglob')
-    ))
+    asyncio.create_task(
+      send_message(
+        tg=self.locator.tg(),
+        chat=self.locator.config().tgGroupId(),
+        text=P(
+          f"Ура! Мы теперь работаем не платно. Накопили уже {value}",
+          emoji='infoglob',
+        ),
+      ))
 
 
 # END

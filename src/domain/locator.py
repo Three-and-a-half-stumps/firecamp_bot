@@ -5,6 +5,7 @@ from src.domain.commands import global_command_list
 
 
 class Locator:
+
   def __init__(self):
     self._commandsManager = None
     self._config = None
@@ -39,23 +40,23 @@ class Locator:
       os.makedirs(os.path.dirname(headfile), exist_ok=True)
       self._lira = Lira(datafile, headfile)
     return self._lira
-  
+
   def logger(self):
     if self._logger is None:
       from src.utils.tg.tg_logger import TgLogger
       self._logger = TgLogger(
         self.sysLogger(),
         self.tg(),
-        self.config().loggingDefaultChats()
+        self.config().loggingDefaultChats(),
       )
     return self._logger
-  
+
   def loggerStream(self):
     if self._loggerStream is None:
       from src.utils.tg.tg_logger_stream import TelegramLoggerStream
       self._loggerStream = TelegramLoggerStream(
         chats=self.config().loggingDefaultChats(),
-        tg=self.tg()
+        tg=self.tg(),
       )
     return self._loggerStream
 
@@ -69,7 +70,8 @@ class Locator:
       )
       self._sysLogger = logging.getLogger('global')
       self._sysLogger.setLevel(logging.INFO)
-      self._sysLogger.com = lambda com, m: self._sysLogger.info(f'{com} {m.chat.id}')
+      self._sysLogger.com = lambda com, m: self._sysLogger.info(
+        f'{com} {m.chat.id}')
     return self._sysLogger
 
   def master(self):
@@ -95,7 +97,7 @@ class Locator:
       from telebot.async_telebot import AsyncTeleBot
       self._tg = AsyncTeleBot(token=self.config().tgToken())
     return self._tg
-  
+
   def vk(self):
     if self._vk is None:
       from src.managers.vk.vk import Vk
@@ -103,8 +105,8 @@ class Locator:
     return self._vk
 
 
-
 class LocatorStorage:
+
   def __init__(self, locator: Locator = None):
     self.locator = locator or Locator
 

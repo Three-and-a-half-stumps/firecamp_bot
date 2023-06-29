@@ -7,6 +7,7 @@ from src.domain.thing import Thing, Price, Category
 
 
 class Vk(LocatorStorage):
+
   def __init__(self, locator: Locator):
     super().__init__(locator)
     self.config = self.locator.config()
@@ -14,8 +15,7 @@ class Vk(LocatorStorage):
     self.api = self.vk.get_api()
     self.upload = VkUpload(self.api)
     self.groupId = self.config.vkGroupId()
-    
-    
+
   def makePost(self, text: str):
     self.api.wall.post(
       owner_id=self.groupId,
@@ -23,8 +23,7 @@ class Vk(LocatorStorage):
       from_group=1,
     )
 
-
-  def addProduct(self, thing: Thing=None) -> int:
+  def addProduct(self, thing: Thing = None) -> int:
     """return vkId"""
     response = self.upload.photo_market(
       photo=thing.photoFilename,
@@ -51,8 +50,7 @@ class Vk(LocatorStorage):
     except Exception as e:
       print(e)
     return thing.vkId
-  
-  
+
   def updateProduct(self, thing: Thing):
     """without photo"""
     self.api.market.edit(
@@ -64,15 +62,13 @@ class Vk(LocatorStorage):
       sku=str(thing.article),
       price=self._getPrice(thing.price),
     )
-  
-  
+
   def removeProduct(self, vkId: int):
     self.api.market.delete(
       item_id=vkId,
       owner_id=self.groupId,
     )
-  
-  
+
   def _getPrice(self, price: Price) -> int:
     if price.type == Price.FREE:
       return self.config.defaultFreePrice()
@@ -80,7 +76,6 @@ class Vk(LocatorStorage):
       return self.config.defaultFixedPrice()
     else:
       return price.fixedPrice
-
 
 
 def category2vkAlbumId(cat: Category) -> Optional[int]:
