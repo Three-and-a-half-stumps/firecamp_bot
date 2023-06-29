@@ -17,6 +17,7 @@ class Locator:
     self._sheet = None
     self._sysLogger = None
     self._tg = None
+    self._tgLog = None
     self._vk = None
 
   def commandsManager(self):
@@ -46,7 +47,7 @@ class Locator:
       from src.utils.tg.tg_logger import TgLogger
       self._logger = TgLogger(
         self.sysLogger(),
-        self.tg(),
+        self.tgLog(),
         self.config().loggingDefaultChats(),
       )
     return self._logger
@@ -56,7 +57,7 @@ class Locator:
       from src.utils.tg.tg_logger_stream import TelegramLoggerStream
       self._loggerStream = TelegramLoggerStream(
         chats=self.config().loggingDefaultChats(),
-        tg=self.tg(),
+        tg=self.tgLog(),
       )
     return self._loggerStream
 
@@ -98,6 +99,12 @@ class Locator:
       self._tg = AsyncTeleBot(token=self.config().tgToken())
     return self._tg
 
+  def tgLog(self):
+    if self._tgLog is None:
+      from telebot.async_telebot import AsyncTeleBot
+      self._tgLog = AsyncTeleBot(token=self.config().tgLogToken())
+    return self._tgLog
+  
   def vk(self):
     if self._vk is None:
       from src.managers.vk.vk import Vk
