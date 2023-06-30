@@ -21,6 +21,7 @@ def migrateThing():
         vkCategory=oldThing.vkCategory,
         category=oldThing.category,
         description=oldThing.description,
+        photoFilename=oldThing.photoFilename,
         price=thing_module.Price(
           oldThing.price.type,
           oldThing.price.fixedPrice,
