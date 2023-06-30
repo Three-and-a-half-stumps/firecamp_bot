@@ -7,5 +7,5 @@ venv
 *.jpeg
 files
 lira
-lira.back
+lira.*
 out.log
