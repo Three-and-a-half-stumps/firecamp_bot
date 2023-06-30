@@ -78,8 +78,7 @@ class TgInputField(TgState):
       self.terminateMessage.emoji = 'warning'
     self.buttons = buttons
     if isinstance(greeting, str):
-      greeting = P(greeting)
-    greeting.emoji = 'edit'
+      greeting = P(greeting, emoji='edit')
     super().__init__(lambda: asyncio.create_task(
       send_message(tg=self.tg,
                    chat=self.chat,
