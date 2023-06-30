@@ -8,7 +8,7 @@ class Category:
     return Category(
       buttonTitle=json['button_title'],
       vkAlbumId=json['vk_album_id'],
-      expirationDaysCount=json['expiration_days_count'],
+      defaultExpirationDaysCount=json['default_expiration_days_count'],
       internalId=json['internal_id'],
     )
 
@@ -16,12 +16,12 @@ class Category:
     self,
     buttonTitle: str,
     vkAlbumId: int,
-    expirationDaysCount: int,
+    defaultExpirationDaysCount: int,
     internalId: int,
   ):
     self.buttonTitle = buttonTitle
     self.vkAlbumId = vkAlbumId
-    self.expirationDaysCount = expirationDaysCount
+    self.defaultExpirationDaysCount = defaultExpirationDaysCount
     self.internalId = internalId
 
   def __repr__(self):
