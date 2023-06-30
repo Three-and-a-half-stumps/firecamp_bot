@@ -30,6 +30,9 @@ class Config:
   def locale(self) -> str:
     return self._paramOrNone('locale', str)
 
+  def photoDir(self) -> str:
+    return self._paramOrNone('photo_dir', str)
+
   def tgToken(self) -> str:
     return self._paramOrNone('tg_token', str)
 

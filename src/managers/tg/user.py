@@ -1,23 +1,17 @@
 import asyncio
-import os
-import re
-import uuid
 import datetime
 
 from telebot.async_telebot import AsyncTeleBot
 from telebot.types import CallbackQuery, Message
 
 from src.domain.locator import LocatorStorage, Locator
-from src.domain.models.thing import Thing, Price, Category
-from src.managers.sheet.sheet import PaymentType
+from src.domain.models.thing import Thing
+from src.domain.thing import Thing
 from src.utils.tg.piece import P
 from src.utils.tg.send_message import send_message
 from src.utils.tg.tg_destination import TgDestination
-from src.utils.tg.tg_input_field import TgInputField, InputFieldButton
 from src.utils.tg.tg_input_form import TgInputForm
 from src.utils.tg.tg_state import TgState
-from src.utils.tg.utils import list_to_layout
-from src.utils.tg.value_validators import FunctionValidator, ValidatorObject, ChainValidator
 
 
 class User(TgState, LocatorStorage):
@@ -30,6 +24,7 @@ class User(TgState, LocatorStorage):
     self.master = self.locator.master()
     self.config = self.locator.config()
     self.logger = self.locator.logger()
+    self.inputFields = self.locator.inputFieldsConstructor().chat(self.chat)
 
   # OVERRIDES
   async def _onTerminate(self):
@@ -40,7 +35,10 @@ class User(TgState, LocatorStorage):
 
   async def _handleMessage(self, m: Message) -> bool:
     self.send(
-      P('Не очень понятно, что ты хочешь.. используй команду', emoji='fail'))
+      P(
+        'Не очень понятно, что ты хочешь.. используй команду',
+        emoji='fail',
+      ))
     return True
 
   async def _handleCallbackQuery(self, q: CallbackQuery) -> bool:
@@ -78,64 +76,12 @@ class User(TgState, LocatorStorage):
         on_form_entered=formEntered,
         terminate_message='Добавление вещи прервано',
         fields=[
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Пришлите фото вещи',
-            validator=FunctionValidator(self.validatePhoto),
-            on_field_entered=lambda _: None,
-          ),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Введите название вещи',
-            validator=FunctionValidator(self.validateName),
-            on_field_entered=lambda _: None,
-          ),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Введите номер рейла',
-            validator=FunctionValidator(self.validateRailNum),
-            on_field_entered=lambda _: None,
-          ),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Выберете ценовую политику или введите конкретную сумму',
-            validator=FunctionValidator(self.validatePrice),
-            on_field_entered=lambda _: None,
-            buttons=[[
-              InputFieldButton(
-                title='Free-price',
-                data=Price(type=Price.FREE),
-              ),
-              InputFieldButton(
-                title='Платный рейл',
-                data=Price(type=Price.DEFAULT_FIXED),
-              )
-            ]]),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Выберите категорию',
-            validator=FunctionValidator(lambda o: ValidatorObject(
-              success=False, error=P('Выберете категорию', emoji='fail'))),
-            on_field_entered=lambda _: None,
-            buttons=list_to_layout([
-              InputFieldButton(
-                title=category,
-                data=category,
-                answer='Выбрана категория "%s"' % category,
-              ) for category in Category.getList()
-            ])),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Введите описание вещи',
-            validator=FunctionValidator(self.validateDescription),
-            on_field_entered=lambda _: None,
-          ),
+          self.inputFields.thingPhoto(),
+          self.inputFields.thingName(),
+          self.inputFields.thingRailNum(),
+          self.inputFields.thingPricePolicy(),
+          self.inputFields.thingCateogry(),
+          self.inputFields.thingDescription(),
         ],
       ))
 
@@ -145,20 +91,11 @@ class User(TgState, LocatorStorage):
 
     async def articleEntered(article):
       thing = self.master.getThing(article)
-      if thing is None:
-        self.send(P('Такой вещи не припомню..', emoji='fail'))
-      else:
-        self.send(f'Рейл: {thing.rail}')
+      self.send(f'Рейл: {thing.rail}')
       await self.resetTgState()
 
     await self.setTgState(
-      TgInputField(
-        tg=self.tg,
-        chat=self.chat,
-        greeting='Введите артикул вещи',
-        validator=FunctionValidator(self.validatePositive),
-        on_field_entered=articleEntered,
-      ))
+      self.inputFields.existedThingArticle(onEntered=articleEntered))
 
   async def handleMove(self):
     if not self._checkTrusted():
@@ -178,39 +115,9 @@ class User(TgState, LocatorStorage):
         on_form_entered=form_entered,
         terminate_message='Перемещение вещи прервано',
         fields=[
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Введите артикул вещи',
-            validator=ChainValidator(validators=[
-              FunctionValidator(self.validatePositive),
-              FunctionValidator(self.validateArticleIsExists),
-            ]),
-            on_field_entered=lambda _: None,
-          ),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Введите номер рейла',
-            validator=FunctionValidator(self.validateRailNum),
-            on_field_entered=lambda _: None,
-          ),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Выберете ценовую политику или введите конкретную сумму',
-            validator=FunctionValidator(self.validatePrice),
-            on_field_entered=lambda _: None,
-            buttons=[[
-              InputFieldButton(
-                title='Free-price',
-                data=Price(type=Price.FREE),
-              ),
-              InputFieldButton(
-                title='Платный рейл',
-                data=Price(type=Price.DEFAULT_FIXED),
-              )
-            ]]),
+          self.inputFields.existedThingArticle(),
+          self.inputFields.thingRailNum('Введите новый номер рейла'),
+          self.inputFields.thingPricePolicy(),
         ],
       ))
 
@@ -226,13 +133,7 @@ class User(TgState, LocatorStorage):
       await self.resetTgState()
 
     await self.setTgState(
-      TgInputField(
-        tg=self.tg,
-        chat=self.chat,
-        greeting='Введите артикул вещи',
-        validator=FunctionValidator(self.validatePositive),
-        on_field_entered=articleEntered,
-      ))
+      self.inputFields.existedThingArticle(onEntered=articleEntered))
 
   async def handleSale(self):
     if not self._checkTrusted():
@@ -262,37 +163,9 @@ class User(TgState, LocatorStorage):
         on_form_entered=formEntered,
         terminate_message='Продажа вещи прервана',
         fields=[
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Введите артикулы вещей через запятую',
-            validator=ChainValidator(validators=[
-              FunctionValidator(self.validateArticlesList),
-              FunctionValidator(self.validateArticleIsExists),
-            ]),
-            on_field_entered=lambda _: None,
-          ),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='За сколько продали?',
-            validator=FunctionValidator(self.validatePositive),
-            on_field_entered=lambda _: None,
-          ),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Выберите способ оплаты',
-            validator=FunctionValidator(lambda o: ValidatorObject(
-              success=False, error=P('Выберите!', emoji='fail'))),
-            on_field_entered=lambda _: None,
-            buttons=list_to_layout([
-              InputFieldButton(
-                title=type,
-                data=type,
-              ) for type in PaymentType.getTypes()
-            ]),
-          ),
+          self.inputFields.existedThingArticleList(),
+          self.inputFields.naturalInt('За сколько продали?'),
+          self.inputFields.thingPaymentType(),
         ],
       ))
 
@@ -316,27 +189,8 @@ class User(TgState, LocatorStorage):
         on_form_entered=formEntered,
         terminate_message='Продажа вещи прервана',
         fields=[
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='За сколько продали?',
-            validator=FunctionValidator(self.validatePositive),
-            on_field_entered=lambda _: None,
-          ),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Выберите способ оплаты',
-            validator=FunctionValidator(lambda o: ValidatorObject(
-              success=False, error=P('Выберите!', emoji='fail'))),
-            on_field_entered=lambda _: None,
-            buttons=list_to_layout([
-              InputFieldButton(
-                title=type,
-                data=type,
-              ) for type in PaymentType.getTypes()
-            ]),
-          ),
+          self.inputFields.naturalInt('За сколько продали?'),
+          self.inputFields.thingPaymentType(),
         ],
       ))
 
@@ -370,30 +224,9 @@ class User(TgState, LocatorStorage):
         on_form_entered=formEntered,
         terminate_message='Перезалив товара прерван',
         fields=[
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Введите артикул вещи',
-            validator=ChainValidator(validators=[
-              FunctionValidator(self.validatePositive),
-              FunctionValidator(self.validateArticleIsExists),
-            ]),
-            on_field_entered=lambda _: None,
-          ),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Введите новое название вещи',
-            validator=FunctionValidator(self.validateName),
-            on_field_entered=lambda _: None,
-          ),
-          TgInputField(
-            tg=self.tg,
-            chat=self.chat,
-            greeting='Введите новое описание вещи',
-            validator=FunctionValidator(self.validateDescription),
-            on_field_entered=lambda _: None,
-          ),
+          self.inputFields.existedThingArticle(),
+          self.inputFields.thingName('Введите новое название вещи'),
+          self.inputFields.thingDescription('Введите новое описание вещи'),
         ],
       ))
 
@@ -414,110 +247,11 @@ class User(TgState, LocatorStorage):
         self.send(P(f'На рейле {rail} нет ни одной вещи.', emoji='fail'))
       await self.resetTgState()
 
-    await self.setTgState(
-      TgInputField(
-        tg=self.tg,
-        chat=self.chat,
-        greeting='Введите номер рейла',
-        validator=FunctionValidator(self.validateRailNum),
-        on_field_entered=railEntered,
-      ))
+    await self.setTgState(self.inputFields.thingRailNum(onEntered=railEntered))
 
   # ACCESSORY
   def send(self, text):
     asyncio.create_task(send_message(tg=self.tg, chat=self.chat, text=text))
-
-  # VALIDATORS
-  @staticmethod
-  def validateName(o: ValidatorObject):
-    o.data = o.message.text
-    if not (4 <= len(o.data) <= 64):
-      o.success = False
-      o.error = P(
-        'Название должно быть не меньше 4 символов и не больше 64 символов',
-        emoji='fail')
-    return o
-
-  @staticmethod
-  def validateRailNum(o: ValidatorObject):
-    o.data = o.message.text
-    if not (o.data == '*' or re.match('^\d+$', o.data)):
-      o.success = False
-      o.error = P('Номер рейла — либо "*", либо число', emoji='fail')
-    elif o.data != '*':
-      o.data = str(int(o.data))
-    return o
-
-  @staticmethod
-  def validateDescription(o: ValidatorObject):
-    o.data = o.message.text
-    if len(o.data) < 10:
-      o.success = False
-      o.error = P('Описание вещи должно быть минимум 10 символов', emoji='fail')
-    return o
-
-  async def validatePhoto(self, o: ValidatorObject):
-    if o.message.photo is None or len(o.message.photo) < 1:
-      o.success = False
-      o.error = P('НУЖНО ФОТО!!', emoji='warning')
-      return o
-    file_id = o.message.photo[-1].file_id
-    file_info = await self.tg.get_file(file_id=file_id)
-    file_data = await self.tg.download_file(file_info.file_path)
-    os.makedirs('photos', exist_ok=True)
-    _, ext = os.path.splitext(file_info.file_path)
-    file_name = 'photos/' + str(uuid.uuid4()) + ext
-    with open(file_name, 'wb') as file:
-      file.write(file_data)
-    o.data = file_name
-    return o
-
-  @staticmethod
-  def validatePrice(o: ValidatorObject):
-    o.data = o.message.text
-    if not re.match('^\d+$', o.data):
-      o.success = False
-      o.error = P('Введите положительное число', emoji='fail')
-    else:
-      o.data = Price(type=Price.FIXED, fixedPrice=int(o.data))
-    return o
-
-  @staticmethod
-  def validatePositive(o: ValidatorObject):
-    o.data = o.message.text
-    if not re.match('^\d+$', o.data):
-      o.success = False
-      o.error = P('Введите положительное число', emoji='fail')
-    else:
-      o.data = int(o.data)
-    return o
-
-  @staticmethod
-  def validateArticlesList(o: ValidatorObject):
-    o.data = o.message.text.split(",")
-    for art in o.data:
-      if not re.match('^\d+$', art.strip()):
-        o.success = False
-        o.error = P('Введите положительные числа через запятую', emoji='fail')
-        return o
-    o.data = list(map(lambda x: int(x.strip()), o.data))
-    return o
-
-  def validateArticleIsExists(self, o: ValidatorObject):
-    notArt = []
-    if isinstance(o.data, int):
-      if not self.master.getThing(o.data):
-        notArt.append(str(o.data))
-    else:
-      for art in o.data:
-        if not self.master.getThing(art):
-          notArt.append(str(art))
-    if notArt:
-      o.success = False
-      o.error = P(
-        f'{"Вещи" if len(notArt) == 1 else "Вещей"} {", ".join(notArt)} не припомню..',
-        emoji='fail')
-    return o
 
   # CHECKS
   def _checkTrusted(self, checkGroup=False):

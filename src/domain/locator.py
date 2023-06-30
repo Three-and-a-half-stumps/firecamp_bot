@@ -9,6 +9,7 @@ class Locator:
   def __init__(self):
     self._commandsManager = None
     self._config = None
+    self._inputFieldsConstructor = None
     self._lira = None
     self._logger = None
     self._loggerStream = None
@@ -19,6 +20,7 @@ class Locator:
     self._tg = None
     self._tgLog = None
     self._thingsRepo = None
+    self._validatorsConstructor = None
     self._vk = None
 
   def commandsManager(self):
@@ -32,6 +34,12 @@ class Locator:
       from src.domain.config import Config
       self._config = Config(filename=sys.argv[1] if len(sys.argv) > 1 else None)
     return self._config
+
+  def inputFieldsConstructor(self):
+    if self._inputFieldsConstructor is None:
+      from src.managers.tg.input_fields import InputFieldsConstructor
+      self._inputFieldsConstructor = InputFieldsConstructor(self)
+    return self._inputFieldsConstructor
 
   def lira(self):
     if self._lira is None:
@@ -111,6 +119,12 @@ class Locator:
       from src.repositories.things_repo import ThingsRepo
       self._thingsRepo = ThingsRepo(self.lira())
     return self._thingsRepo
+  
+  def validatorsConstructor(self):
+    if self._validatorsConstructor is None:
+      from src.managers.tg.validators import ValidatorsConstructor
+      self._validatorsConstructor = ValidatorsConstructor(self)
+    return self._validatorsConstructor
 
   def vk(self):
     if self._vk is None:
