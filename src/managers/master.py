@@ -2,7 +2,7 @@ import asyncio
 from typing import Optional, List
 
 from src.domain.locator import LocatorStorage, Locator
-from src.domain.thing import Thing, Price
+from src.domain.models.thing import Thing, Price
 from src.managers.sheet.sheet import PaymentType
 from src.utils.tg.piece import P
 from src.utils.tg.send_message import send_message
@@ -15,7 +15,6 @@ class Master(LocatorStorage):
     self.repo = self.locator.repo()
     self.vk = self.locator.vk()
     self.sheet = self.locator.sheet()
-    pass
 
   def newThing(self, thing: Thing) -> int:
     thing.article = self.repo.makeNextArticle()
@@ -36,7 +35,7 @@ class Master(LocatorStorage):
     thing.description = newDescription
     self.vk.removeProduct(thing.vkId)
     thing.vkId = self.vk.addProduct(thing)
-    self.repo.updateThing(thing)
+    thing.notify()
     return True
 
   def changeThingRail(
@@ -52,7 +51,7 @@ class Master(LocatorStorage):
     if price is not None and not (thing.price == price):
       thing.price = price
       self.vk.updateProduct(thing)
-    self.repo.updateThing(thing)
+    thing.notify()
     return True
 
   def getThing(self, article: int) -> Optional[Thing]:

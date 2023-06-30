@@ -3,7 +3,7 @@ from typing import Optional
 from vk_api import VkApi, VkUpload
 
 from src.domain.locator import LocatorStorage, Locator
-from src.domain.thing import Thing, Price, Category
+from src.domain.models.thing import Thing, Price, Category
 
 
 class Vk(LocatorStorage):
@@ -78,7 +78,7 @@ class Vk(LocatorStorage):
       return price.fixedPrice
 
 
-def category2vkAlbumId(cat: Category) -> Optional[int]:
+def category2vkAlbumId(cat: str) -> Optional[int]:
   return {
     Category.UP: 2,
     Category.DOWN: 3,
