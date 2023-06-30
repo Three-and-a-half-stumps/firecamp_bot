@@ -397,7 +397,7 @@ class User(TgState, LocatorStorage):
   async def handleCountThings(self):
     if not self._checkTrusted():
       return
-    self.send(f"Вещей - {self.master.getCountAllThings()} шт.")
+    self.send(f'Вещей - {self.master.getCountAllThings()} шт.')
 
   async def handleCountThingsOnRail(self):
     if not self._checkTrusted():
@@ -405,9 +405,9 @@ class User(TgState, LocatorStorage):
 
     async def railEntered(rail):
       countOnRail = self.master.getCountThingsOnRail(rail)
-      if countOnRail:
-        self.send(f"Вещей на {rail} рейле - {countOnRail} шт.")
-      else: self.send(P(f"На рейле {rail} нет ни одной вещи.", emoji='fail'))
+      if countOnRail != 0:
+        self.send(f'Вещей на {rail} рейле - {countOnRail} шт.')
+      else: self.send(P(f'На рейле {rail} нет ни одной вещи.', emoji='fail'))
       await self.resetTgState()
 
     await self.setTgState(TgInputField(
