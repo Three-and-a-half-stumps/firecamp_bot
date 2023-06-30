@@ -59,6 +59,7 @@ class Price(Serializable):
 
 
 class Thing(Serializable, Notifier):
+
   def serialize(self) -> Dict[str, Any]:
     return {
       'article': self.article,
@@ -109,7 +110,7 @@ class Thing(Serializable, Notifier):
     self.description = description
     self.price = price
     self.vkId = vkId
-    self.timestamp = timestamp or dt.datetime.today()
+    self.timestamp = timestamp
 
   def __str__(self):
     return str(self.__dict__)
