@@ -73,13 +73,15 @@ global_command_list = [
       True,
     ),
     (
-      'count_things', '/count_things',
+      'count_things',
+      '/count_things',
       'Узнать количество всех вещей',
       'handleCountThings',
       True,
     ),
     (
-      'count_things_on_rail', '/count_things_on_rail',
+      'count_things_on_rail',
+      '/count_things_on_rail',
       'Узнать количество вещей на рейле',
       'handleCountThingsOnRail',
       True,

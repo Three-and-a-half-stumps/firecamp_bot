@@ -38,9 +38,12 @@ class Repo(LocatorStorage):
     return article
 
   def getThingsOnRail(self, rail: int) -> List[Thing]:
-    return [self.lira(id) for id in self.lira[Repo.THING_CATEGORY] if self.lira(id).rail == rail]
+    return [
+      self.lira(id)
+      for id in self.lira[Repo.THING_CATEGORY]
+      if self.lira(id).rail == rail
+    ]
 
   def getAllThings(self) -> List[Thing]:
     return list(
       map(lambda id: self.lira.get(id), self.lira[Repo.THING_CATEGORY]))
-
