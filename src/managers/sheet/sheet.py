@@ -56,7 +56,11 @@ class Sheet(LocatorStorage):
 
   def getMonthEnd(self):
     monthes = self.sheet.get_values(self.sumPlace)
-    monthes = list(map(lambda row: [row[0], dt.datetime.strptime(row[1], self.dateFmt)], monthes))
+    monthes = list(
+      map(
+        lambda row: [row[0], dt.datetime.strptime(row[1], self.dateFmt)],
+        monthes,
+      ))
     for i in range(len(monthes) - 1):
       if monthes[i][1] <= dt.datetime.now() < monthes[i + 1][1]:
         enddate = monthes[i + 1][1]
