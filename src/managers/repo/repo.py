@@ -31,5 +31,12 @@ class Repo(LocatorStorage):
     self.lira.flush()
     return article
 
+  def getThingsOnRail(self, rail: int) -> List[Thing]:
+    return [
+      self.lira(id)
+      for id in self.lira[Repo.THING_CATEGORY]
+      if self.lira(id).rail == rail
+    ]
+
   def getAllThings(self) -> List[Thing]:
     return self.thingsRepo.findAll()

@@ -394,6 +394,32 @@ class User(TgState, LocatorStorage):
         ],
       ))
 
+  async def handleCountThings(self):
+    if not self._checkTrusted():
+      return
+    self.send(f'Вещей - {self.master.getCountAllThings()} шт.')
+
+  async def handleCountThingsOnRail(self):
+    if not self._checkTrusted():
+      return
+
+    async def railEntered(rail):
+      countOnRail = self.master.getCountThingsOnRail(rail)
+      if countOnRail != 0:
+        self.send(f'Вещей на {rail} рейле - {countOnRail} шт.')
+      else:
+        self.send(P(f'На рейле {rail} нет ни одной вещи.', emoji='fail'))
+      await self.resetTgState()
+
+    await self.setTgState(
+      TgInputField(
+        tg=self.tg,
+        chat=self.chat,
+        greeting='Введите номер рейла',
+        validator=FunctionValidator(self.validateRailNum),
+        on_field_entered=railEntered,
+      ))
+
   # ACCESSORY
   def send(self, text):
     asyncio.create_task(send_message(tg=self.tg, chat=self.chat, text=text))

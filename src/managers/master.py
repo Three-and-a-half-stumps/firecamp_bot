@@ -82,6 +82,15 @@ class Master(LocatorStorage):
   def getAllThings(self) -> List[Thing]:
     return self.repo.getAllThings()
 
+  def getCountAllThings(self) -> int:
+    return len(self.getAllThings())
+
+  def getThingsOnRail(self, rail: int) -> List[Thing]:
+    return self.repo.getThingsOnRail(rail)
+
+  def getCountThingsOnRail(self, rail: int) -> int:
+    return len(self.getThingsOnRail(rail))
+
   def alertPayOff(self, value: int):
     asyncio.create_task(
       send_message(
