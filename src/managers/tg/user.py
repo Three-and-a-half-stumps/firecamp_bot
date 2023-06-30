@@ -2,6 +2,7 @@ import asyncio
 import os
 import re
 import uuid
+import datetime
 
 from telebot.async_telebot import AsyncTeleBot
 from telebot.types import CallbackQuery, Message
@@ -343,8 +344,9 @@ class User(TgState, LocatorStorage):
     if not self._checkTrusted(checkGroup=True):
       return
     percent = int(self.master.getMonthlyTotal() / self.config.rent() * 100)
-    self.send(
-      f"{self.master.getMonthlyTotal()}р. А это аж {percent}% от аренды.")
+    timeDifference = self.master.getMonthEnd() - datetime.datetime.now()
+    self.send(f"{self.master.getMonthlyTotal()}р. А это аж {percent}% от аренды. "
+"До конца арендного месяца осталось {timeDifference.days}д.")
 
   async def handleReadd(self):
     if not self._checkTrusted():

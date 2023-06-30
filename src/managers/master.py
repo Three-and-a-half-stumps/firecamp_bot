@@ -61,6 +61,9 @@ class Master(LocatorStorage):
   def getMonthlyTotal(self) -> Optional[int]:
     return self.sheet.getMonthlyTotal()
 
+  def getMonthEnd(self):
+    return self.sheet.getMonthEnd()
+
   def removeThing(self, article: int) -> bool:
     thing = self.repo.getThing(article)
     if thing is None:
