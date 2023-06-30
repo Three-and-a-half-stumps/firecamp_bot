@@ -346,8 +346,8 @@ class User(TgState, LocatorStorage):
     percent = int(self.master.getMonthlyTotal() / self.config.rent() * 100)
     timeDifference = self.master.getMonthEnd() - datetime.datetime.now()
     self.send(
-      f"{self.master.getMonthlyTotal()}р. А это аж {percent}% от аренды. "
-      "До конца арендного месяца осталось {timeDifference.days}д.")
+      f'{self.master.getMonthlyTotal()}р. А это аж {percent}% от аренды. '
+      f'До конца арендного месяца осталось {timeDifference.days}д.')
 
   async def handleReadd(self):
     if not self._checkTrusted():
