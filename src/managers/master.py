@@ -184,5 +184,12 @@ class Master(LocatorStorage):
                          count) if donate != sumFixedPrice else 0
     return averageExtraPrice
 
+  async def sendDailyInfoToGroup(self):
+    print(self.locator.config().tgGroupId())
+    await send_message(
+      tg=self.locator.tg(),
+      chat=self.locator.config().tgGroupId(),
+      text=self.locator.info().dailySummary(),
+    )
 
 # END

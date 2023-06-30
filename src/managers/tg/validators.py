@@ -6,6 +6,7 @@ from typing import Callable
 
 from src.domain.locator import LocatorStorage, Locator
 from src.domain.models.thing import Price
+from src.utils.datetime.utils import datetime_copy_with
 from src.utils.tg.piece import P, Pieces
 from src.utils.tg.value_validators import ValidatorObject, Validator, \
   FunctionValidator
@@ -87,26 +88,6 @@ class ValidatorsConstructor(LocatorStorage):
       value = datetime_copy_with(value, dt.datetime.now().year)
       return (datetime_copy_with(value, value.year + 1)
               if isfuture and value < dt.datetime.now() - delta else value)
-
-    def datetime_copy_with(
-      val: dt.datetime,
-      year: int = None,
-      month: int = None,
-      day: int = None,
-      hour: int = None,
-      minute: int = None,
-      second: int = None,
-      microsecond: int = None,
-    ):
-      return dt.datetime(
-        year=val.year if year is None else year,
-        month=val.month if month is None else month,
-        day=val.day if day is None else day,
-        hour=val.hour if hour is None else hour,
-        minute=val.minute if minute is None else minute,
-        second=val.second if second is None else second,
-        microsecond=val.microsecond if microsecond is None else microsecond,
-      )
 
     return self._handleExceptionWrapper(validateParseDatatime)
 

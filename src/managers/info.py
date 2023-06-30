@@ -72,7 +72,6 @@ class InfoManager(LocatorStorage):
     percent = round(value / hundred * 100)
     return f'{percent}%'
 
-  @staticmethod
   def month(value: int) -> str:
     return [
       'январь',
