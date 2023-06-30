@@ -40,11 +40,13 @@ class TgLogger:
       if chat.chatId == chat_id:
         continue
       asyncio.create_task(
-        self.tg.send_message(chat_id=chat.chatId,
-                             reply_to_message_id=chat.messageToReplayId,
-                             text=text,
-                             entities=entities,
-                             **kwargs))
+        self.tg.send_message(
+          chat_id=chat.chatId,
+          reply_to_message_id=chat.messageToReplayId,
+          text=text,
+          entities=entities,
+          **kwargs,
+        ))
 
   @staticmethod
   def _usernameIdOrId(m):

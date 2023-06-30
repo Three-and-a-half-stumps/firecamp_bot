@@ -11,10 +11,12 @@ class Locator:
     self._commandsManager = None
     self._config = None
     self._inputFieldsConstructor = None
+    self._info = None
     self._lira = None
     self._logger = None
     self._loggerStream = None
     self._master = None
+    self._regularInfo = None
     self._repo = None
     self._sheet = None
     self._sysLogger = None
@@ -49,6 +51,12 @@ class Locator:
       from src.managers.tg.input_fields import InputFieldsConstructor
       self._inputFieldsConstructor = InputFieldsConstructor(self)
     return self._inputFieldsConstructor
+
+  def info(self):
+    if self._info is None:
+      from src.managers.info import InfoManager
+      self._info = InfoManager(self)
+    return self._info
 
   def lira(self):
     if self._lira is None:
@@ -98,6 +106,12 @@ class Locator:
       from src.managers.master import Master
       self._master = Master(self)
     return self._master
+
+  def regularInfo(self):
+    if self._regularInfo is None:
+      from src.managers.regular_info import RegularInfo
+      self._regularInfo = RegularInfo(self)
+    return self._regularInfo
 
   def repo(self):
     if self._repo is None:

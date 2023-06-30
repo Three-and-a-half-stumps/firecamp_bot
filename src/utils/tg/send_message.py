@@ -127,8 +127,8 @@ async def send_message(
       m = await tg.send_media_group(**kwargs)
     else:
       m = await tg.send_message(**kwargs)
-      if _logger is not None:
-        _logger.message(pieces, kwargs['chat_id'])
+      # if _logger is not None:
+      #   _logger.message(pieces, kwargs['chat_id'])
 
   if answer_callback_query_id is not None:
     await tg.answer_callback_query(

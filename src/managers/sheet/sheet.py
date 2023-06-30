@@ -32,6 +32,7 @@ class Sheet(LocatorStorage):
     self.timestampFmt = self.config.googleTimestampFmt()
     self.dateFmt = self.config.googleDateFmt()
     self.sumPlace = self.config.googleSumPlace()
+    self.monthesPlace = self.config.googleMonthesPlace()
 
   def addPurchase(self, price: int, paymentType: PaymentType):
     self.sheet.append_row(
@@ -71,3 +72,14 @@ class Sheet(LocatorStorage):
         enddate = enddate[0] + "." + str(int(enddate[1]) + 1) + "." + enddate[2]
         enddate = dt.datetime.strptime(enddate, self.dateFmt)
     return enddate
+
+  def getCurrentMonthEdges(self) -> (dt.datetime, dt.datetime):
+    """
+    Возвращает первый и последний (включительно) день текущего месяца
+    """
+    monthes = self.sheet.get_values(self.monthesPlace)
+    monthes = [dt.datetime.strptime(row[0], self.dateFmt) for row in monthes]
+    for i in range(len(monthes) - 1):
+      if monthes[i] <= dt.datetime.today() < monthes[i + 1]:
+        return monthes[i], monthes[i + 1] - dt.timedelta(days=1)
+    raise Exception(f'Today does not included in monthes: {monthes}')

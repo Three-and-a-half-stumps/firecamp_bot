@@ -16,8 +16,10 @@ class TelegramLoggerStream:
   def write(self, report):
     for chat in self.chats:
       asyncio.create_task(
-        self.tg.send_message(chat_id=chat.chatId,
-                             reply_to_message_id=chat.messageToReplayId,
-                             text=report,
-                             disable_web_page_preview=True))
+        self.tg.send_message(
+          chat_id=chat.chatId,
+          reply_to_message_id=chat.messageToReplayId,
+          text=report,
+          disable_web_page_preview=True,
+        ))
     stdout.write(report)
