@@ -4,7 +4,7 @@ import uuid
 from typing import Callable
 
 from src.domain.locator import LocatorStorage, Locator
-from src.domain.thing import Price
+from src.domain.models.thing import Price
 from src.utils.tg.piece import P, Pieces
 from src.utils.tg.value_validators import ValidatorObject, Validator, \
   FunctionValidator

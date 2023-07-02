@@ -1,7 +1,7 @@
 from typing import Callable, Any, Union, List
 
 from src.domain.locator import LocatorStorage, Locator
-from src.domain.thing import Price, Category
+from src.domain.models.thing import Price, Category
 from src.managers.sheet.sheet import PaymentType
 from src.utils.tg.piece import P, Pieces
 from src.utils.tg.tg_destination import TgDestination
