@@ -31,7 +31,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
   def naturalInt(
     self,
     greeting: Union[str, Pieces] = None,
-    onEntered: Callable[[str], Any] = lambda _: None,  # str is filename
+    onEntered: Callable[[str], Any] = lambda _: None,
   ) -> TgInputField:
     return TgInputField(
       tg=self.tg,
@@ -45,7 +45,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
   def thingPhoto(
     self,
     greeting: Union[str, Pieces] = None,
-    onEntered: Callable[[str], Any] = lambda _: None,  # str is filename
+    onEntered: Callable[[str], Any] = lambda _: None,
   ) -> TgInputField:
     return TgInputField(
       tg=self.tg,
@@ -58,7 +58,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
   def thingName(
     self,
     greeting: Union[str, Pieces] = None,
-    onEntered: Callable[[str], Any] = lambda _: None,  # str name
+    onEntered: Callable[[str], Any] = lambda _: None,
   ) -> TgInputField:
     return TgInputField(
       tg=self.tg,
@@ -71,7 +71,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
   def thingRailNum(
     self,
     greeting: Union[str, Pieces] = None,
-    onEntered: Callable[[str], Any] = lambda _: None,  # str is railnum
+    onEntered: Callable[[str], Any] = lambda _: None,
   ) -> TgInputField:
     return TgInputField(
       tg=self.tg,
@@ -108,7 +108,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
   def thingCateogry(
     self,
     greeting: Union[str, Pieces] = None,
-    onEntered: Callable[[str], Any] = lambda _: None,  # str is category
+    onEntered: Callable[[str], Any] = lambda _: None,
   ) -> TgInputField:
     return TgInputField(
       tg=self.tg,
@@ -131,7 +131,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
   def thingDescription(
     self,
     greeting: Union[str, Pieces] = None,
-    onEntered: Callable[[str], Any] = lambda _: None,  # str is description
+    onEntered: Callable[[str], Any] = lambda _: None,
   ) -> TgInputField:
     return TgInputField(
       tg=self.tg,
@@ -144,7 +144,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
   def existedThingArticle(
     self,
     greeting: Union[str, Pieces] = None,
-    onEntered: Callable[[int], Any] = lambda _: None,  # int is article
+    onEntered: Callable[[int], Any] = lambda _: None,
   ) -> TgInputField:
     return TgInputField(
       tg=self.tg,
@@ -176,7 +176,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
   def thingPaymentType(
     self,
     greeting: Union[str, Pieces] = None,
-    onEntered: Callable[[str], Any] = lambda _: None,  # str is payment type
+    onEntered: Callable[[str], Any] = lambda _: None,
   ) -> TgInputField:
     return TgInputField(
       tg=self.tg,

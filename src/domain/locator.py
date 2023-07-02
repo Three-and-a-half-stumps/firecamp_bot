@@ -119,7 +119,7 @@ class Locator:
       from src.repositories.things_repo import ThingsRepo
       self._thingsRepo = ThingsRepo(self.lira())
     return self._thingsRepo
-  
+
   def validatorsConstructor(self):
     if self._validatorsConstructor is None:
       from src.managers.tg.validators import ValidatorsConstructor

@@ -91,8 +91,7 @@ class Config:
 
   def categories(self) -> List[Category]:
     return [
-      Category.fromJson(data)
-      for data in self._paramOrNone('categories', list)
+      Category.fromJson(data) for data in self._paramOrNone('categories', list)
     ]
 
   def _paramOrNone(self, name: str, tp):
