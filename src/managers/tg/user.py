@@ -6,7 +6,6 @@ from telebot.types import CallbackQuery, Message
 
 from src.domain.locator import LocatorStorage, Locator
 from src.domain.models.thing import Thing
-from src.domain.thing import Thing
 from src.utils.tg.piece import P
 from src.utils.tg.send_message import send_message
 from src.utils.tg.tg_destination import TgDestination
