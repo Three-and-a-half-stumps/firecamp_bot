@@ -23,7 +23,7 @@ class Vk(LocatorStorage):
       from_group=1,
     )
 
-  def addProduct(self, thing: Thing = None) -> int:
+  def addProduct(self, thing: Thing = None) -> Optional[int]:
     """return vkId"""
     try:
       response = self.upload.photo_market(
