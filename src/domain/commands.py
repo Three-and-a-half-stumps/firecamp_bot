@@ -31,6 +31,13 @@ global_command_list = [
       True,
     ),
     (
+      'newnew',
+      '/newnew',
+      'Добавить новую-новую вещь',
+      'handleNewNew',
+      False,
+    ),
+    (
       'find',
       '/find',
       'Найти рейл вещи',

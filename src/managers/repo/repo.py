@@ -31,6 +31,11 @@ class Repo(LocatorStorage):
     self.lira.flush()
     return article
 
+  def ungetLastArticle(self):
+    self.articleIterator -= 1
+    self.lira.put(self.articleIterator, id=Repo.ARTICLE_ITERATOR)
+    self.lira.flush()
+
   def getThingsOnRail(self, rail: int) -> List[Thing]:
     return self.thingsRepo.findAll(lambda thing: thing.rail == rail)
 

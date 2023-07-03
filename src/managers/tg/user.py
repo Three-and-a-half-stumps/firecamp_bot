@@ -1,5 +1,5 @@
 import asyncio
-import datetime
+import datetime as dt
 
 from telebot.async_telebot import AsyncTeleBot
 from telebot.types import CallbackQuery, Message
@@ -53,36 +53,12 @@ class User(TgState, LocatorStorage):
   async def handleNew(self):
     if not self._checkTrusted():
       return
+    await self._handleNew()
 
-    async def formEntered(data):
-      article = self.master.newThing(
-        Thing(
-          rail=data[2],
-          name=data[1],
-          photoFilename=data[0],
-          vkCategory=5001,
-          category=data[4],
-          description=data[5],
-          price=data[3],
-        ))
-      self.send(P('Вещь успешно добавлена. Артикул: %i' % article, emoji='ok'))
-      await self.resetTgState()
-
-    await self.setTgState(
-      TgInputForm(
-        tg=self.tg,
-        chat=self.chat,
-        on_form_entered=formEntered,
-        terminate_message='Добавление вещи прервано',
-        fields=[
-          self.inputFields.thingPhoto(),
-          self.inputFields.thingName(),
-          self.inputFields.thingRailNum(),
-          self.inputFields.thingPricePolicy(),
-          self.inputFields.thingCateogry(),
-          self.inputFields.thingDescription(),
-        ],
-      ))
+  async def handleNewNew(self):
+    if not self._checkDev():
+      return
+    await self._handleNew(setActionTimestamp=True)
 
   async def handleFind(self):
     if not self._checkTrusted():
@@ -197,23 +173,24 @@ class User(TgState, LocatorStorage):
     if not self._checkTrusted(checkGroup=True):
       return
     percent = round(self.master.getMonthlyTotal() / self.config.rent() * 100)
-    timeDifference = self.master.getMonthEnd() - datetime.datetime.now()
+    timeDifference = self.master.getMonthEnd() - dt.datetime.now()
     self.send(
       f'Собрано {self.master.getMonthlyTotal()}р. А это аж {percent}% от аренды. '
       f'До конца арендного месяца осталось {timeDifference.days}д.')
 
   async def handleReadd(self):
-    if not self._checkTrusted():
-      return
-    elif not self._isDev(self.chat):
-      self.send('Эта команда доступна только разработчикам.')
+    if not self._checkDev():
       return
 
     async def formEntered(data):
-      if self.master.reAddThing(article=data[0],
-                                newName=data[1],
-                                newDescription=data[2]):
+      if self.master.reAddThing(
+          article=data[0],
+          newName=data[1],
+          newDescription=data[2],
+      ):
         self.send(P('Продукт успешно пересоздан.', emoji='ok'))
+      else:
+        self.send(P('Что-то пошло не так..', emoji='fail'))
       await self.resetTgState()
 
     await self.setTgState(
@@ -252,12 +229,58 @@ class User(TgState, LocatorStorage):
   def send(self, text):
     asyncio.create_task(send_message(tg=self.tg, chat=self.chat, text=text))
 
+  # OTHER
+  async def _handleNew(self, setActionTimestamp: bool = False):
+
+    async def formEntered(data):
+      print(f'photo: {data[0]}')
+      article = self.master.newThing(
+        Thing(
+          rail=data[2],
+          name=data[1],
+          photoFilename=data[0],
+          vkCategory=5001,
+          category=data[4],
+          description=data[5],
+          price=data[3],
+          timestamp=dt.datetime.today() if setActionTimestamp else None,
+        ))
+      if article is not None:
+        self.send(P('Вещь успешно добавлена. Артикул: %i' % article,
+                    emoji='ok'))
+      else:
+        self.send(P(
+          'Что-то пошло не так.. попробуйте ещё раз',
+          emoji='fail',
+        ))
+      await self.resetTgState()
+
+    await self.setTgState(
+      TgInputForm(
+        tg=self.tg,
+        chat=self.chat,
+        on_form_entered=formEntered,
+        terminate_message='Добавление вещи прервано',
+        fields=[
+          self.inputFields.thingPhoto(),
+          self.inputFields.thingName(),
+          self.inputFields.thingRailNum(),
+          self.inputFields.thingPricePolicy(),
+          self.inputFields.thingCateogry(),
+          self.inputFields.thingDescription(),
+        ],
+      ))
+
   # CHECKS
   def _checkTrusted(self, checkGroup=False):
     if (self.chat.chatId in self.config.trustedUsers() or
         checkGroup and self.chat.chatId == self.config.tgGroupId()):
       return True
     self.send('Я вас не звал, идите наЬ#Я')
+    return False
 
-  def _isDev(self, chatId):
-    return chatId in self.locator.config().devUsers()
+  def _checkDev(self):
+    if self.chat.chatId in self.config.devUsers():
+      return True
+    self.send('Эта команда доступна только разработчикам.')
+    return False

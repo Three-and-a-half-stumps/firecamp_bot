@@ -16,9 +16,13 @@ class Master(LocatorStorage):
     self.vk = self.locator.vk()
     self.sheet = self.locator.sheet()
 
-  def newThing(self, thing: Thing) -> int:
+  def newThing(self, thing: Thing) -> Optional[int]:
     thing.article = self.repo.makeNextArticle()
     thing.vkId = self.vk.addProduct(thing)
+    if thing.vkId is None:
+      self.repo.ungetLastArticle()
+      thing.article = None
+      return None
     self.repo.addThing(thing)
     return thing.article
 
@@ -34,7 +38,11 @@ class Master(LocatorStorage):
     thing.name = newName
     thing.description = newDescription
     self.vk.removeProduct(thing.vkId)
-    thing.vkId = self.vk.addProduct(thing)
+    newVkId = self.vk.addProduct(thing)
+    if newVkId is None:
+      self.repo.removeThing(article)
+      return False
+    thing.vkId = newVkId
     thing.notify()
     return True
 
