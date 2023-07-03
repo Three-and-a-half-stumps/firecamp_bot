@@ -7,6 +7,11 @@ from src.domain.locator import glob
 from src.utils.tg.send_message import set_send_message_logger
 
 
+def printThing(article: int):
+  repo = glob().thingsRepo()
+  print(repo.find(article))
+
+
 def migrateThing():
   cat = old_thing_module.THING_CATEGORY
   lira = glob().lira()

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from vk_api import VkApi, VkUpload
+from vk_api import VkApi, VkUpload, vk_api
 
 from src.domain.locator import LocatorStorage, Locator
 from src.domain.models.thing import Thing, Price, Category
@@ -25,22 +25,26 @@ class Vk(LocatorStorage):
 
   def addProduct(self, thing: Thing = None) -> int:
     """return vkId"""
-    response = self.upload.photo_market(
-      photo=thing.photoFilename,
-      group_id=self.groupId,
-      main_photo=True,
-    )
-    photo_id = response[0]['id']
-    response = self.api.market.add(
-      owner_id=self.groupId,
-      name=thing.name,
-      description=thing.description,
-      category_id=thing.vkCategory,
-      main_photo_id=photo_id,
-      sku=str(thing.article),
-      price=self._getPrice(thing.price),
-    )
-    thing.vkId = int(response['market_item_id'])
+    try:
+      response = self.upload.photo_market(
+        photo=thing.photoFilename,
+        group_id=self.groupId,
+        main_photo=True,
+      )
+      photo_id = response[0]['id']
+      response = self.api.market.add(
+        owner_id=self.groupId,
+        name=thing.name,
+        description=thing.description,
+        category_id=thing.vkCategory,
+        main_photo_id=photo_id,
+        sku=str(thing.article),
+        price=self._getPrice(thing.price),
+      )
+      thing.vkId = int(response['market_item_id'])
+    except vk_api.ApiError as e:
+      self.locator.logger().error(f'Vk::addProduct() -> {e}')
+      return None
     try:
       self.api.market.addToAlbum(
         owner_id=self.groupId,
