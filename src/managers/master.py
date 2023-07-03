@@ -40,6 +40,7 @@ class Master(LocatorStorage):
     self.vk.removeProduct(thing.vkId)
     newVkId = self.vk.addProduct(thing)
     if newVkId is None:
+      self.repo.removeThing(article)
       return False
     thing.vkId = newVkId
     thing.notify()
