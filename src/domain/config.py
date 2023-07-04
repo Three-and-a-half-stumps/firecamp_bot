@@ -71,6 +71,9 @@ class Config:
   def googleSumPlace(self) -> str:
     return self._paramOrNone('google_sum_place', str)
 
+  def googleLifetimePlace(self) -> str:
+    return self._paramOrNone('google_lifetime_place', str)
+
   def defaultFixedPrice(self) -> int:
     return self._paramOrNone('default_fixed_price', int)
 

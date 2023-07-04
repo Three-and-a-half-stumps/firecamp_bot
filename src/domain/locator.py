@@ -128,7 +128,7 @@ class Locator:
 
   def sheetStats(self):
     if self._sheetStats is None:
-      from src.managers.sheet.sheetstats import SheetStats
+      from src.managers.sheet.sheet_stats import SheetStats
       self._sheetStats = SheetStats(self)
     return self._sheetStats
 
