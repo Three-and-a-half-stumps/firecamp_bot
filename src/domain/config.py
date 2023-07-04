@@ -59,6 +59,9 @@ class Config:
   def googleSheet(self) -> str:
     return self._paramOrNone('google_sheet', str)
 
+  def googleSheetStats(self) -> str:
+    return self._paramOrNone('google_sheet_stats', str)
+
   def googleTimestampFmt(self) -> str:
     return self._paramOrNone('google_timestamp_fmt', str)
 
@@ -67,6 +70,9 @@ class Config:
 
   def googleSumPlace(self) -> str:
     return self._paramOrNone('google_sum_place', str)
+
+  def googleLifetimePlace(self) -> str:
+    return self._paramOrNone('google_lifetime_place', str)
 
   def defaultFixedPrice(self) -> int:
     return self._paramOrNone('default_fixed_price', int)
