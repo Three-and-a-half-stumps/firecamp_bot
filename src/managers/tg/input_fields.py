@@ -214,9 +214,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
         ),
         InputFieldButton(
           title='Вчера',
-          data=dt.datetime(
-            year=(dt.datetime.today() - dt.timedelta(days=1)).year,
-            month=(dt.datetime.today() - dt.timedelta(days=1)).month,
-            day=(dt.datetime.today() - dt.timedelta(days=1)).day))
+          data=dt.datetime.today() - dt.timedelta(days=1),
+        ),
       ]),
     )
