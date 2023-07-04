@@ -72,9 +72,10 @@ class ValidatorsConstructor(LocatorStorage):
       o.success = False
       o.error = err or (
         P('Не получилось считать дату'
-          'Введите время в одном из следующих форматов:\n') +
-        P('\n'.join([dt.datetime.now().strftime(fmt) for fmt in formats]),
-          types='code'))
+          'Введите время в одном из следующих форматов:\n') + P(
+            '\n'.join([dt.datetime.now().strftime(fmt) for fmt in formats]),
+            types='code',
+          ))
       return o
 
     return self._handleExceptionWrapper(validateParseDatatime)
