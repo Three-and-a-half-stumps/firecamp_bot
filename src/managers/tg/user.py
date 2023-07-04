@@ -247,11 +247,11 @@ class User(TgState, LocatorStorage):
         ))
       if article is not None:
         goodlink = ''.join([
-                                 'https://m.vk.com/product',
-                                 str(self.master.vk.groupId),
-                                 '_',
-                                 str(vkID)
-                               ])
+                            'https://m.vk.com/product',
+                            str(self.master.vk.groupId),
+                            '_',
+                            str(vkID)
+                            ])
         self.send(P('Вещь', emoji='ok', url = goodlink) +
                   f' успешно добавлена. Артикул: {article}'
                  )
