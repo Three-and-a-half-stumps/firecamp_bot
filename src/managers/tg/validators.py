@@ -219,7 +219,10 @@ class ValidatorsConstructor(LocatorStorage):
         o.error = P(
           'При проверке значения что-то пошло не так :( Текст ошибки: ',
           emoji='fail',
-        ) + P(str(e), types='code')
+        ) + P(
+          str(e),
+          types='code',
+        )
         self.logger.error(str(e))
       return o
 
