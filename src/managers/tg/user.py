@@ -253,7 +253,7 @@ class User(TgState, LocatorStorage):
                                  str(vkID)
                                ])
         self.send(P('Вещь', emoji='ok', url = goodlink) +
-                  f'успешно добавлена. Артикул: {article}'
+                  f' успешно добавлена. Артикул: {article}'
                  )
       else:
         self.send(P(
