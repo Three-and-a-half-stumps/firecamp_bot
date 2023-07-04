@@ -53,10 +53,22 @@ async def main():
   locator = glob()
   logger = locator.logger()
   set_send_message_logger(logger)
+
+  # async queues
+  asyncQueues = locator.asyncQueues()
+  asyncQueues.run()
+
+  # commands
   commands = locator.commandsManager()
   set_locale(locator.config())
   await commands.addCommandsToMenu()
   commands.addHandlers()
+
+  # vk
+  vk = locator.vkGroupEventHandler()
+  vk.start()
+
+  # run
   logger.info('Firecamp bot started')
   await locator.tg().infinity_polling()
   logger.info('Firecamp bot finished')

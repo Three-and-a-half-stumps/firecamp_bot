@@ -11,7 +11,7 @@ class Vk(LocatorStorage):
   def __init__(self, locator: Locator):
     super().__init__(locator)
     self.config = self.locator.config()
-    self.vk = VkApi(token=self.config.vkAccessToken(), api_version='5.131')
+    self.vk = self.locator.vkApi()
     self.api = self.vk.get_api()
     self.upload = VkUpload(self.api)
     self.groupId = self.config.vkGroupId()
