@@ -1,6 +1,7 @@
 import os
 import re
 import uuid
+import datetime as dt
 from typing import Callable
 
 from src.domain.locator import LocatorStorage, Locator
@@ -54,6 +55,60 @@ class ValidatorsConstructor(LocatorStorage):
       return o
 
     return self._handleExceptionWrapper(validateArticlesList)
+
+  def correctDatatime(self, err: Pieces = None) -> Validator:
+
+    def validateParseDatatime(o: ValidatorObject):
+      formats = [
+        '%d %B',
+        '%d.%m',
+      ]
+      for fmt in formats:
+        try:
+          date = dt.datetime.strptime(o.message.text, fmt)
+          o.data = correct_datetime(date)
+          return o
+        except:
+          continue
+      o.success = False
+      o.error = err or (
+        P('Не получилось считать дату\n'
+          'Введите время в одном из следующих форматов:\n') + P(
+            '\n'.join([dt.datetime.now().strftime(fmt) for fmt in formats]),
+            types='code',
+          ))
+      return o
+
+    def correct_datetime(
+        value: dt.datetime,
+        isfuture: bool = False,
+        delta: dt.timedelta = dt.timedelta(weeks=4),
+    ) -> dt.datetime:
+      value = datetime_copy_with(value, dt.datetime.now().year)
+      return (datetime_copy_with(value, value.year + 1)
+              if isfuture and value < dt.datetime.now() - delta else value)
+
+    def datetime_copy_with(
+      val: dt.datetime,
+      year: int = None,
+      month: int = None,
+      day: int = None,
+      hour: int = None,
+      minute: int = None,
+      second: int = None,
+      microsecond: int = None,
+    ):
+      return dt.datetime(
+        year=val.year if year is None else year,
+        month=val.month if month is None else month,
+        day=val.day if day is None else day,
+        hour=val.hour if hour is None else hour,
+        minute=val.minute if minute is None else minute,
+        second=val.second if second is None else second,
+        microsecond=val.microsecond if microsecond is None else microsecond,
+      )
+
+    return self._handleExceptionWrapper(validateParseDatatime)
 
   def errorValidator(self, err: Pieces = None) -> Validator:
     return self._handleExceptionWrapper(lambda o: ValidatorObject(
@@ -195,7 +250,10 @@ class ValidatorsConstructor(LocatorStorage):
         o.error = P(
           'При проверке значения что-то пошло не так :( Текст ошибки: ',
           emoji='fail',
-        ) + P(str(e), types='code')
+        ) + P(
+          str(e),
+          types='code',
+        )
         self.logger.error(str(e))
       return o
 

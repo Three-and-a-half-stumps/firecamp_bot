@@ -2,7 +2,9 @@
 import asyncio
 import src.domain.models.thing as thing_module
 import src.domain.thing as old_thing_module
+import locale
 
+from src.domain.config import Config
 from src.domain.locator import glob
 from src.utils.tg.send_message import set_send_message_logger
 
@@ -10,6 +12,13 @@ from src.utils.tg.send_message import set_send_message_logger
 def printThing(article: int):
   repo = glob().thingsRepo()
   print(repo.find(article))
+
+
+def set_locale(config: Config):
+  locale.setlocale(
+    category=locale.LC_ALL,
+    locale=config.locale(),
+  )
 
 
 def migrateThing():
@@ -45,6 +54,7 @@ async def main():
   logger = locator.logger()
   set_send_message_logger(logger)
   commands = locator.commandsManager()
+  set_locale(locator.config())
   await commands.addCommandsToMenu()
   commands.addHandlers()
   logger.info('Firecamp bot started')

@@ -243,7 +243,7 @@ class User(TgState, LocatorStorage):
           category=data[4],
           description=data[5],
           price=data[3],
-          timestamp=dt.datetime.today() if setActionTimestamp else None,
+          timestamp=data[6] if setActionTimestamp else None,
         ))
       if article is not None:
         self.send(P('Вещь успешно добавлена. Артикул: %i' % article,
@@ -268,6 +268,7 @@ class User(TgState, LocatorStorage):
           self.inputFields.thingPricePolicy(),
           self.inputFields.thingCateogry(),
           self.inputFields.thingDescription(),
+          *([self.inputFields.thingDatatime()] if setActionTimestamp else []),
         ],
       ))
 
