@@ -204,7 +204,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
     return TgInputField(
       tg=self.tg,
       chat=self.chat,
-      greeting=greeting or 'Введите дату появления вещи или введите',
+      greeting=greeting or 'Выберите дату появления вещи или введите',
       validator=self.validators.correctDatatime(),
       on_field_entered=onEntered,
       buttons=list_to_layout([
@@ -215,10 +215,8 @@ class InputFieldsConstructorParameterized(LocatorStorage):
         InputFieldButton(
           title='Вчера',
           data=dt.datetime(
-            year=dt.datetime.today().year,
-            month=dt.datetime.today().month,
-            day=dt.datetime.today().day - 1
-          ),
-        )
+            year=(dt.datetime.today() - dt.timedelta(days=1)).year,
+            month=(dt.datetime.today() - dt.timedelta(days=1)).month,
+            day=(dt.datetime.today() - dt.timedelta(days=1)).day))
       ]),
     )

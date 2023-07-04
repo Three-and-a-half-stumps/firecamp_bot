@@ -59,24 +59,23 @@ class ValidatorsConstructor(LocatorStorage):
   def correctDatatime(self, err: Pieces = None) -> Validator:
 
     def validateParseDatatime(o: ValidatorObject):
-      formats = [
-        '%d %B',
-        '%d.%m'
-      ]
+      formats = ['%d %B', '%d.%m']
       for fmt in formats:
         try:
           date = dt.datetime.strptime(o.message.text, fmt)
-          o.data = dt.datetime(year=dt.datetime.today().year, month=date.month, day=date.day)
+          o.data = dt.datetime(year=dt.datetime.today().year,
+                               month=date.month,
+                               day=date.day)
           return o
         except:
           continue
       o.success = False
-      o.error = err or (P('Не получилось считать дату время '
-                                  'Введите время в одном из следующих форматов:\n') +
-                              P('\n'.join([dt.datetime.now().strftime(fmt) for fmt in formats]),
-                                  types='code'))
+      o.error = err or (
+        P('Не получилось считать дату'
+          'Введите время в одном из следующих форматов:\n') +
+        P('\n'.join([dt.datetime.now().strftime(fmt) for fmt in formats]),
+          types='code'))
       return o
-
 
     return self._handleExceptionWrapper(validateParseDatatime)
 

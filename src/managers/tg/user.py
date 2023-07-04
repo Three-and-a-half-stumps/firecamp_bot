@@ -230,7 +230,7 @@ class User(TgState, LocatorStorage):
     asyncio.create_task(send_message(tg=self.tg, chat=self.chat, text=text))
 
   # OTHER
-  async def _handleNew(self, setActionTimestamp: bool = False, datatime: dt.datetime = None):
+  async def _handleNew(self, setActionTimestamp: bool = False):
 
     async def formEntered(data):
       print(f'photo: {data[0]}')
@@ -243,7 +243,7 @@ class User(TgState, LocatorStorage):
           category=data[4],
           description=data[5],
           price=data[3],
-          timestamp=datatime if setActionTimestamp else None,
+          timestamp=data[6] if setActionTimestamp else None,
         ))
       if article is not None:
         self.send(P('Вещь успешно добавлена. Артикул: %i' % article,
@@ -268,14 +268,7 @@ class User(TgState, LocatorStorage):
           self.inputFields.thingPricePolicy(),
           self.inputFields.thingCateogry(),
           self.inputFields.thingDescription(),
-          self.inputFields.thingDatatime(),
-        ] if setActionTimestamp else [
-          self.inputFields.thingPhoto(),
-          self.inputFields.thingName(),
-          self.inputFields.thingRailNum(),
-          self.inputFields.thingPricePolicy(),
-          self.inputFields.thingCateogry(),
-          self.inputFields.thingDescription(),
+          *([self.inputFields.thingDatatime()] if setActionTimestamp else []),
         ],
       ))
 
