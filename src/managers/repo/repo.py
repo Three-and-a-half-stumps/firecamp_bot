@@ -40,4 +40,4 @@ class Repo(LocatorStorage):
     return self.thingsRepo.findAll(lambda thing: thing.rail == rail)
 
   def getAllThings(self) -> List[Thing]:
-    return self.thingsRepo.findAll()
+    return self.thingsRepo.findAll(predicat=lambda _: True)
