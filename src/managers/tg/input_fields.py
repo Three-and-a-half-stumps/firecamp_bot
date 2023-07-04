@@ -1,4 +1,5 @@
 from typing import Callable, Any, Union, List
+import datetime as dt
 
 from src.domain.locator import LocatorStorage, Locator
 from src.domain.models.thing import Price, Category
@@ -192,5 +193,32 @@ class InputFieldsConstructorParameterized(LocatorStorage):
           title=type,
           data=type,
         ) for type in PaymentType.getTypes()
+      ]),
+    )
+
+  def thingDatatime(
+    self,
+    greeting: Union[str, Pieces] = None,
+    onEntered: Callable[[str], Any] = lambda _: None,
+  ) -> TgInputField:
+    return TgInputField(
+      tg=self.tg,
+      chat=self.chat,
+      greeting=greeting or 'Введите дату появления вещи или введите',
+      validator=self.validators.correctDatatime(),
+      on_field_entered=onEntered,
+      buttons=list_to_layout([
+        InputFieldButton(
+          title='Сегодня',
+          data=dt.datetime.today(),
+        ),
+        InputFieldButton(
+          title='Вчера',
+          data=dt.datetime(
+            year=dt.datetime.today().year,
+            month=dt.datetime.today().month,
+            day=dt.datetime.today().day - 1
+          ),
+        )
       ]),
     )
