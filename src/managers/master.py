@@ -21,7 +21,7 @@ class Master(LocatorStorage):
     thing.article = self.repo.makeNextArticle()
     thing.vkId = self.vk.addProduct(thing)
     self.repo.addThing(thing)
-    return thing.article
+    return thing.article, thing.vkId
 
   def reAddThing(
     self,

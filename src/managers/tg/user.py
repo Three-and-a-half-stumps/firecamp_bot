@@ -58,7 +58,7 @@ class User(TgState, LocatorStorage):
       return
 
     async def formEntered(data):
-      article = self.master.newThing(
+      article, vkID = self.master.newThing(
         Thing(
           rail=data[2],
           name=data[1],
@@ -68,7 +68,14 @@ class User(TgState, LocatorStorage):
           description=data[5],
           price=data[3],
         ))
-      self.send(P('Вещь успешно добавлена. Артикул: %i' % article, emoji='ok'))
+      commoditylink = ''.join([
+                              'https://m.vk.com/product',
+                              str(self.master.vk.groupId),
+                              '_',
+                              str(vkID)
+                             ])
+      self.send(P('Вещь', emoji='ok', url = commoditylink) +
+                f' успешно добавлена. Артикул: {article}')
       await self.resetTgState()
 
     await self.setTgState(
@@ -345,9 +352,8 @@ class User(TgState, LocatorStorage):
       return
     percent = int(self.master.getMonthlyTotal() / self.config.rent() * 100)
     timeDifference = self.master.getMonthEnd() - datetime.datetime.now()
-    self.send(
-      f"{self.master.getMonthlyTotal()}р. А это аж {percent}% от аренды. "
-      "До конца арендного месяца осталось {timeDifference.days}д.")
+    self.send(f"{self.master.getMonthlyTotal()}р. А это аж {percent}% от аренды. "
+              f"До конца арендного месяца осталось {timeDifference.days}д.")
 
   async def handleReadd(self):
     if not self._checkTrusted():
