@@ -15,6 +15,7 @@ class Master(LocatorStorage):
     self.repo = self.locator.repo()
     self.vk = self.locator.vk()
     self.sheet = self.locator.sheet()
+    self.sheet_stats = self.locator.sheet_stats()
 
   def newThing(self, thing: Thing) -> Optional[int]:
     thing.article = self.repo.makeNextArticle()
@@ -83,8 +84,15 @@ class Master(LocatorStorage):
     price: int,
     paymentType: PaymentType,
     article: int = None,
-  ) -> bool:
-    if article is None or self.removeThing(article):
+  ):
+    #if article is None or self.removeThing(article):
+    if article is None:
+      self.sheet.addPurchase(price, paymentType)
+      return True
+    else:
+      lifetime = self.grabStats(price, self.getThing(
+        article))  #Потом выводить в ответном сообщении время жизни
+      self.removeThing(article)
       self.sheet.addPurchase(price, paymentType)
       return True
     return False
@@ -95,10 +103,10 @@ class Master(LocatorStorage):
   def getCountAllThings(self) -> int:
     return len(self.getAllThings())
 
-  def getThingsOnRail(self, rail: int) -> List[Thing]:
+  def getThingsOnRail(self, rail: str) -> List[Thing]:
     return self.repo.getThingsOnRail(rail)
 
-  def getCountThingsOnRail(self, rail: int) -> int:
+  def getCountThingsOnRail(self, rail: str) -> int:
     return len(self.getThingsOnRail(rail))
 
   def alertPayOff(self, value: int):
@@ -111,6 +119,14 @@ class Master(LocatorStorage):
           emoji='infoglob',
         ),
       ))
+
+  def grabStats(self, price: int, thing: Thing) -> int:
+    return self.sheet_stats.addRow(
+      thing=thing,
+      price=price,
+      countOnRail=self.getCountThingsOnRail(thing.rail),
+      countAll=self.getCountAllThings(),
+    )
 
 
 # END
