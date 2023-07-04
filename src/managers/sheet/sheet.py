@@ -60,24 +60,6 @@ class Sheet(LocatorStorage):
         return int(monthes[i][0])
     return int(monthes[-1][0]) if len(monthes) > 0 else None
 
-  def getMonthEnd(self):
-    monthes = self.sheet.get_values(self.sumPlace)
-    monthes = list(
-      map(
-        lambda row: [row[0], dt.datetime.strptime(row[1], self.dateFmt)],
-        monthes,
-      ))
-    for i in range(len(monthes) - 1):
-      if monthes[i][1] <= dt.datetime.now() < monthes[i + 1][1]:
-        enddate = monthes[i + 1][1]
-        break
-      else:
-        enddate = dt.datetime.strftime(monthes[i + 1][1], self.dateFmt)
-        enddate = enddate.split(".")
-        enddate = enddate[0] + "." + str(int(enddate[1]) + 1) + "." + enddate[2]
-        enddate = dt.datetime.strptime(enddate, self.dateFmt)
-    return enddate
-
   def getCurrentMonthEdges(self) -> (dt.datetime, dt.datetime):
     """
     Возвращает первый и последний (включительно) день текущего месяца
