@@ -1,15 +1,36 @@
 import datetime as dt
+from typing import Optional
 
 from src.domain.locator import LocatorStorage, Locator
 from src.utils.tg.piece import Pieces, P
 
 
 class InfoManager(LocatorStorage):
+  """
+  Собирает информация по всей программе
+  """
 
   def __init__(self, locator: Locator):
     super().__init__(locator)
     self.sheet = self.locator.sheet()
     self.repo = self.locator.repo()
+    self.config = self.locator.config()
+
+  def monthlyTotal(self) -> Optional[int]:
+    return self.sheet.getMonthlyTotal()
+
+  def currentMonthEdges(self) -> (dt.datetime, dt.datetime):
+    return self.sheet.getCurrentMonthEdges()
+
+  def monthlyTotalMessage(self) -> str:
+    total = self.monthlyTotal()
+    percent = round(total / self.config.rent() * 100)
+    _, last = self.sheet.getCurrentMonthEdges()
+    today = dt.datetime.today()
+    today = dt.datetime(year=today.year, month=today.month, day=today.day)
+    diff = (last - today).days + 1
+    return (f'Собрано {total}р. А это аж {percent}% от аренды. '
+            f'До конца арендного месяца осталось {diff}д.')
 
   def dailySummary(self) -> Pieces:
     title = P('📈 ') + P(
