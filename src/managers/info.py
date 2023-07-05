@@ -24,12 +24,12 @@ class InfoManager(LocatorStorage):
 
   def monthlyTotalMessage(self) -> str:
     total = self.monthlyTotal()
-    percent = round(total / self.config.rent() * 100)
     _, last = self.sheet.getCurrentMonthEdges()
     today = dt.datetime.today()
     today = dt.datetime(year=today.year, month=today.month, day=today.day)
     diff = (last - today).days + 1
-    return (f'Собрано {total}р. А это аж {percent}% от аренды. '
+    return (f'Собрано {self.rubles(total)} '
+            f'А это аж {self.percent(total, self.config.rent())} от аренды. '
             f'До конца арендного месяца осталось {diff}д.')
 
   def dailySummary(self) -> Pieces:
@@ -42,10 +42,11 @@ class InfoManager(LocatorStorage):
     month = P(f'Месяц: {self.month(first.month)} '
               f'({first.strftime("%d %B")} — {last.strftime("%d %B")})')
 
+    total = self.sheet.getMonthlyTotal()
     money = P(f'Собрано: ') + P(
-      f'{self.rubles(self.sheet.getMonthlyTotal())}',
+      f'{self.rubles(total)}',
       types='code',
-    )
+    ) + P(f' ({self.percent(total, self.config.rent())})')
 
     things = P('Вещей в базе: ') + P(
       f'{self.locator.master().getCountAllThings()}',
@@ -60,6 +61,11 @@ class InfoManager(LocatorStorage):
   @staticmethod
   def rubles(value: int) -> str:
     return f'{value}р.'
+
+  @staticmethod
+  def percent(total: int, rent: int) -> str:
+    percent = round(total / rent * 100)
+    return f'{percent}%'
 
   @staticmethod
   def month(value: int) -> str:
