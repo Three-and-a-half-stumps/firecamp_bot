@@ -7,11 +7,7 @@ from src.utils.tg.piece import Pieces, P
 
 class InfoManager(LocatorStorage):
   """
-<<<<<<< HEAD
   Собирает информацию по всей программе
-=======
-  Собирает информация по всей программе
->>>>>>> 1ab2f28 (review edits)
   """
 
   def __init__(self, locator: Locator):
@@ -76,6 +72,7 @@ class InfoManager(LocatorStorage):
     percent = round(value / hundred * 100)
     return f'{percent}%'
 
+  @staticmethod
   def month(value: int) -> str:
     return [
       'январь',

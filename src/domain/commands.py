@@ -91,6 +91,7 @@ global_command_list = [
       '/count_things_on_rail',
       'Узнать количество вещей на рейле',
       'handleCountThingsOnRail',
+      True,
     ),
     (
       'daily',
