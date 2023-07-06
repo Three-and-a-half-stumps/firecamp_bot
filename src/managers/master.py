@@ -1,4 +1,5 @@
 import asyncio
+import datetime as dt
 
 from typing import Optional, List
 
@@ -16,6 +17,7 @@ class Master(LocatorStorage):
     self.repo = self.locator.repo()
     self.vk = self.locator.vk()
     self.sheet = self.locator.sheet()
+    self.config = self.locator.config()
 
   def newThing(self, thing: Thing) -> Optional[int]:
     thing.article = self.repo.makeNextArticle()
@@ -97,11 +99,14 @@ class Master(LocatorStorage):
   def getCountThingsOnRail(self, rail: int) -> int:
     return len(self.getThingsOnRail(rail))
 
+  def getOverdueThings(self) -> List[Thing]:
+    return self.repo.getThingsIf(self._thingIsOverdue)
+
   def alertPayOff(self, value: int):
     asyncio.create_task(
       send_message(
         tg=self.locator.tg(),
-        chat=self.locator.config().tgGroupId(),
+        chat=self.config.tgGroupId(),
         text=P(
           f"Ура! Мы теперь работаем не платно. Накопили уже {value}",
           emoji='infoglob',
@@ -111,9 +116,16 @@ class Master(LocatorStorage):
   async def sendDailyInfoToGroup(self):
     await send_message(
       tg=self.locator.tg(),
-      chat=self.locator.config().tgGroupId(),
+      chat=self.config.tgGroupId(),
       text=self.locator.info().dailySummary(),
     )
+
+  def _thingIsOverdue(self, thing: Thing) -> bool:
+    if thing.timestamp is None:
+      return False
+    category = self.config.findCateogryByInternalId(thing.category)
+    return ((dt.datetime.today() - thing.timestamp).days
+            >= category.defaultExpirationDaysCount)
 
 
 # END

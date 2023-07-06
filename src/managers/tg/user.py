@@ -179,6 +179,17 @@ class User(TgState, LocatorStorage):
       return
     self.send(self.info.dailySummary())
 
+  async def handleOverdue(self):
+    if not self._checkTrusted(checkGroup=True):
+      return
+    things = self.master.getOverdueThings()
+    if len(things) == 0:
+      self.send(P('Нет просроченных вещей :)', emoji='ok'))
+    else:
+      articles = sorted([thing.article for thing in things])
+      articles = ', '.join([str(article) for article in articles])
+      self.send(P('Просрок: ') + P(f'{articles}', types='code'))
+
   async def handleReadd(self):
     if not self._checkDev():
       return
