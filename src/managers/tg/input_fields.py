@@ -2,7 +2,7 @@ from typing import Callable, Any, Union, List
 import datetime as dt
 
 from src.domain.locator import LocatorStorage, Locator
-from src.domain.models.thing import Price, Category
+from src.domain.models.thing import Price
 from src.managers.sheet.sheet import PaymentType
 from src.utils.tg.piece import P, Pieces
 from src.utils.tg.tg_destination import TgDestination
@@ -26,6 +26,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
     super().__init__(locator)
     self.tg = self.locator.tg()
     self.validators = self.locator.validatorsConstructor()
+    self.categories = self.locator.config().categories()
     self.chat = chat
 
   # Common fields
@@ -106,7 +107,7 @@ class InputFieldsConstructorParameterized(LocatorStorage):
       ]],
     )
 
-  def thingCateogry(
+  def thingCategory(
     self,
     greeting: Union[str, Pieces] = None,
     onEntered: Callable[[str], Any] = lambda _: None,
@@ -122,10 +123,10 @@ class InputFieldsConstructorParameterized(LocatorStorage):
       on_field_entered=onEntered,
       buttons=list_to_layout([
         InputFieldButton(
-          title=category,
-          data=category,
-          answer='Выбрана категория "%s"' % category,
-        ) for category in Category.getList()
+          title=category.buttonTitle,
+          data=category.internalId,
+          answer=f'Выбрана категория {category.buttonTitle}',
+        ) for category in self.categories
       ]),
     )
 

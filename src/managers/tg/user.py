@@ -266,7 +266,7 @@ class User(TgState, LocatorStorage):
           self.inputFields.thingName(),
           self.inputFields.thingRailNum(),
           self.inputFields.thingPricePolicy(),
-          self.inputFields.thingCateogry(),
+          self.inputFields.thingCategory(),
           self.inputFields.thingDescription(),
           *([self.inputFields.thingDatatime()] if setActionTimestamp else []),
         ],

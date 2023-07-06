@@ -3,7 +3,7 @@ from typing import Optional
 from vk_api import VkUpload, ApiError
 
 from src.domain.locator import LocatorStorage, Locator
-from src.domain.models.thing import Thing, Price, Category
+from src.domain.models.thing import Thing, Price
 
 
 class Vk(LocatorStorage):
@@ -49,7 +49,8 @@ class Vk(LocatorStorage):
       self.api.market.addToAlbum(
         owner_id=self.groupId,
         item_ids=str(thing.vkId),
-        album_ids=str(category2vkAlbumId(thing.category)),
+        album_ids=str(
+          self.config.findCateogryByInternalId(thing.category).vkAlbumId),
       )
     except Exception as e:
       print(e)
@@ -80,15 +81,3 @@ class Vk(LocatorStorage):
       return self.config.defaultFixedPrice()
     else:
       return price.fixedPrice
-
-
-def category2vkAlbumId(cat: str) -> Optional[int]:
-  return {
-    Category.UP: 2,
-    Category.DOWN: 3,
-    Category.FULL: 4,
-    Category.SHOES: 5,
-    Category.ACCESSORIES: 6,
-    Category.BOOKS: 7,
-    Category.OTHER: 8,
-  }.get(cat, None)
