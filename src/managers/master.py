@@ -1,4 +1,5 @@
 import asyncio
+
 from typing import Optional, List
 
 from src.domain.locator import LocatorStorage, Locator
@@ -41,6 +42,7 @@ class Master(LocatorStorage):
     self.vk.removeProduct(thing.vkId)
     newVkId = self.vk.addProduct(thing)
     if newVkId is None:
+      self.repo.removeThing(article)
       return False
     thing.vkId = newVkId
     thing.notify()
@@ -64,12 +66,6 @@ class Master(LocatorStorage):
 
   def getThing(self, article: int) -> Optional[Thing]:
     return self.repo.getThing(article)
-
-  def getMonthlyTotal(self) -> Optional[int]:
-    return self.sheet.getMonthlyTotal()
-
-  def getMonthEnd(self):
-    return self.sheet.getMonthEnd()
 
   def removeThing(self, article: int) -> bool:
     thing = self.repo.getThing(article)
@@ -126,6 +122,14 @@ class Master(LocatorStorage):
       price=price,
       countOnRail=self.getCountThingsOnRail(thing.rail),
       countAll=self.getCountAllThings(),
+
+  async def sendDailyInfoToGroup(self):
+    await send_message(
+      tg=self.locator.tg(),
+      chat=self.locator.config().tgGroupId(),
+      text=self.locator.info().dailySummary(),
+      pin_message=True,
+      disable_pin_notification=True,
     )
 
 

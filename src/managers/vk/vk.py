@@ -1,6 +1,6 @@
 from typing import Optional
 
-from vk_api import VkApi, VkUpload, vk_api
+from vk_api import VkApi, VkUpload, ApiError
 
 from src.domain.locator import LocatorStorage, Locator
 from src.domain.models.thing import Thing, Price, Category
@@ -11,7 +11,7 @@ class Vk(LocatorStorage):
   def __init__(self, locator: Locator):
     super().__init__(locator)
     self.config = self.locator.config()
-    self.vk = VkApi(token=self.config.vkAccessToken(), api_version='5.131')
+    self.vk = self.locator.vkApi()
     self.api = self.vk.get_api()
     self.upload = VkUpload(self.api)
     self.groupId = self.config.vkGroupId()
@@ -42,7 +42,7 @@ class Vk(LocatorStorage):
         price=self._getPrice(thing.price),
       )
       thing.vkId = int(response['market_item_id'])
-    except vk_api.ApiError as e:
+    except ApiError as e:
       self.locator.logger().error(f'Vk::addProduct() -> {e}')
       return None
     try:
