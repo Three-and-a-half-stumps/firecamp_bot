@@ -235,7 +235,7 @@ class User(TgState, LocatorStorage):
 
     async def formEntered(data):
       print(f'photo: {data[0]}')
-      article = self.master.newThing(
+      article, vkID = self.master.newThing(
         Thing(
           rail=data[2],
           name=data[1],
@@ -247,8 +247,15 @@ class User(TgState, LocatorStorage):
           timestamp=data[6] if setActionTimestamp else None,
         ))
       if article is not None:
-        self.send(P('Вещь успешно добавлена. Артикул: %i' % article,
-                    emoji='ok'))
+        goodlink = ''.join([
+                            'https://m.vk.com/product',
+                            str(self.master.vk.groupId),
+                            '_',
+                            str(vkID)
+                            ])
+        self.send(P('Вещь', emoji='ok', url = goodlink) +
+                  f' успешно добавлена. Артикул: {article}'
+                 )
       else:
         self.send(P(
           'Что-то пошло не так.. попробуйте ещё раз',
