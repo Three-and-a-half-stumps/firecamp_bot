@@ -33,9 +33,10 @@ class InfoManager(LocatorStorage):
             f'До конца арендного месяца осталось {diff}д.')
 
   def dailySummary(self) -> Pieces:
-    title = P('📈 ') + P(
+    title = P(
       f'Горячая сводка от {self.today()}',
       types=['italic', 'bold', 'underline'],
+      emoji='info_board',
     )
 
     first, last = self.sheet.getCurrentMonthEdges()
@@ -63,8 +64,8 @@ class InfoManager(LocatorStorage):
     return f'{value}р.'
 
   @staticmethod
-  def percent(total: int, rent: int) -> str:
-    percent = round(total / rent * 100)
+  def percent(value: int, hundred: int) -> str:
+    percent = round(value / hundred * 100)
     return f'{percent}%'
 
   @staticmethod
