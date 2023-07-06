@@ -80,22 +80,22 @@ class Master(LocatorStorage):
     self.repo.removeThing(article)
     return True
 
-  def sellThing(
+  def addPurchase(
     self,
     price: int,
     paymentType: PaymentType,
-    article: int = None,
   ):
-    #if article is None or self.removeThing(article):
-    if article is None:
-      self.sheet.addPurchase(price, paymentType)
-      return True
-    else:
-      lifetime = self.grabStats(price, self.getThing(
-        article))  #Потом выводить в ответном сообщении время жизни
-      self.removeThing(article)
-      self.sheet.addPurchase(price, paymentType)
-      return True
+    self.sheet.addPurchase(price, paymentType)
+    return
+
+  def sellThing(
+    self,
+    price: int,
+    article: int,
+  ) -> Optional[int]:
+    lifetime = self.grabStats(price, self.getThing(article))
+    if self.removeThing(article):
+      return lifetime
     return False
 
   def getAllThings(self) -> List[Thing]:
@@ -121,7 +121,7 @@ class Master(LocatorStorage):
         ),
       ))
 
-  def grabStats(self, price: int, thing: Thing) -> int:
+  def grabStats(self, price: int, thing: Thing) -> Optional[int]:
     return self.sheet_stats.addRow(
       thing=thing,
       price=price,

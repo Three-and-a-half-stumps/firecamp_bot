@@ -5,7 +5,7 @@ from telebot.async_telebot import AsyncTeleBot
 from telebot.types import CallbackQuery, Message
 
 from src.domain.locator import LocatorStorage, Locator
-from src.domain.models.thing import Thing
+from src.domain.models.thing import Thing, Price
 from src.utils.tg.piece import P
 from src.utils.tg.send_message import send_message
 from src.utils.tg.tg_destination import TgDestination
@@ -115,20 +115,54 @@ class User(TgState, LocatorStorage):
       return
 
     async def formEntered(data):
-      isNotSold = data[0][0] if not self.master.sellThing(
-        price=data[1],
-        paymentType=data[2],
-        article=data[0][0],
-      ) else None
-      for i in range(1, len(data[0])):
-        isNotSold = data[0][i] if not self.master.removeThing(
-          data[0][i]) else None
-        if isNotSold:
-          break
-      if not isNotSold:
-        self.send(P('Вещи успешно проданы!', emoji='ok'))
+      self.master.addPurchase(data[1], data[2])
+      price = data[1]
+      things = list(
+        [self.master.getThing(data[0][i]) for i in range(len(data[0]))])
+      countFreePrice = len(
+        [thing for thing in things if thing.price.type == Price.FREE])
+      thingsFixedPrice = {
+        thing.article:
+          thing.price.fixedPrice if thing.price.type == Price.FIXED else
+          self.config.defaultFixedPrice()
+        for thing in things
+        if not thing.price.type == Price.FREE
+      }
+      allFixed = (countFreePrice == 0)
+      averageExtraPrice = (
+        lambda count: (price - sum(thingsFixedPrice.values())) / count
+      )(countFreePrice if not allFixed else len(thingsFixedPrice)) if price != sum(
+        thingsFixedPrice.values()) else 0
+      isNotSold = []
+      isSold = []
+      for thing in things:
+        finalPrice = thingsFixedPrice.get(
+          thing.article) if not allFixed else thingsFixedPrice.get(
+            thing.article) + averageExtraPrice
+        lifetime = self.master.sellThing(
+          price=averageExtraPrice
+          if thing.price.type == Price.FREE else finalPrice,
+          article=thing.article,
+        )
+        if lifetime < 0:
+          lifetime = '[нет информации]'
+        if lifetime is not None:
+          isSold.append([thing.article, lifetime])
+        else:
+          isNotSold.append(thing.article)
+      if not bool(isNotSold):
+        self.send(
+          P('Вещи успешно проданы!', emoji='ok') + '\n\n' +
+          'Итоги жизни вещей:\n' +
+          '\n'.join([f'{thing[0]}: {thing[1]} дней' for thing in isSold]))
       else:
-        self.send(P(f'На вещи {isNotSold} что-то пошло не так..', emoji='fail'))
+        self.send(
+          P(f'Вещи {", ".join(isSold)} успешно проданы!', emoji='ok') + '\n\n' +
+          'Итоги жизни вещей:\n' +
+          '\n'.join([f'{thing[0]}: {thing[1]} days' for thing in isSold]) +
+          '\n\n' +
+          P(f'Вещи {", ".join(isNotSold)} продать не удалось. Обратитесь к фиксикам',
+            emoji='fail'))
       await self.resetTgState()
 
     await self.setTgState(
@@ -149,8 +183,7 @@ class User(TgState, LocatorStorage):
       return
 
     async def formEntered(data):
-      isSold = self.master.sellThing(price=data[0], paymentType=data[1])
-      if isSold:
+      if self.master.addPurchase(price=data[0], paymentType=data[1]):
         self.send(P('Вещи успешно проданы!', emoji='ok'))
       else:
         self.send(P(f'Что-то пошло не так..', emoji='fail'))
