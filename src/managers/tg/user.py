@@ -5,7 +5,7 @@ from telebot.async_telebot import AsyncTeleBot
 from telebot.types import CallbackQuery, Message
 
 from src.domain.locator import LocatorStorage, Locator
-from src.domain.models.thing import Thing, Price
+from src.domain.models.thing import Thing
 from src.utils.tg.piece import P
 from src.utils.tg.send_message import send_message
 from src.utils.tg.tg_destination import TgDestination
@@ -24,6 +24,7 @@ class User(TgState, LocatorStorage):
     self.config = self.locator.config()
     self.logger = self.locator.logger()
     self.inputFields = self.locator.inputFieldsConstructor().chat(self.chat)
+    self.info = self.locator.info()
 
   # OVERRIDES
   async def _onTerminate(self):
@@ -116,21 +117,19 @@ class User(TgState, LocatorStorage):
 
     async def formEntered(data):
       isSold, isNotSold = self.master.sellThings(
-        donate= data[1],
-        paymentType= data[2],
+        donate=data[1],
+        paymentType=data[2],
         articles=data[0],
       )
 
       if len(isNotSold) == 0:
         self.send(
           P('Вещи успешно проданы!', emoji='ok') + '\n\n' +
-          'Итоги жизни вещей:\n' +
-          '\n'.join([f'{thing[0]}: {thing[1]} д.' for thing in isSold]))
+          self.info.resultsOfLifetime(isSold))
       else:
         self.send(
           P(f'Вещи {", ".join(isSold)} успешно проданы!', emoji='ok') + '\n\n' +
-          'Итоги жизни вещей:\n' +
-          '\n'.join([f'{thing[0]}: {thing[1]} д.' for thing in isSold]))
+          self.info.resultsOfLifetime(isSold))
         self.send(
           P(f'Вещи {", ".join(isNotSold)} продать не удалось. Обратитесь к фиксикам',
             emoji='fail'))

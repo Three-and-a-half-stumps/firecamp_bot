@@ -7,6 +7,7 @@ from src.domain.models.thing import Thing, Price
 from src.managers.sheet.sheet import PaymentType
 from src.utils.tg.piece import P
 from src.utils.tg.send_message import send_message
+from src.utils.datetime.utils import cut_time
 
 
 class Master(LocatorStorage):
@@ -100,7 +101,8 @@ class Master(LocatorStorage):
         price=price,
         thing=thing,
       )
-      lifetime = (dt.datetime.now() - thing.timestamp).days if thing.timestamp is not None else None
+      lifetime = (cut_time(dt.datetime.now()) -
+                  cut_time(thing.timestamp)).days if thing.timestamp is not None else None
       if self.removeThing(article):
         isSold.append([article, lifetime])
       else:
@@ -135,8 +137,7 @@ class Master(LocatorStorage):
     price: int,
     paymentType: PaymentType,
   ):
-    self.sheet.addPurchase(price, paymentType)
-    return
+    return self.sheet.addPurchase(price, paymentType)
 
   def _pushStats(self, price: int, thing: Thing) -> bool:
     return self.sheetStats.addRow(

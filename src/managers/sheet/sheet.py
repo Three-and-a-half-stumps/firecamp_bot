@@ -32,18 +32,22 @@ class Sheet(LocatorStorage):
     self.dateFmt = self.config.googleDateFmt()
     self.sumPlace = self.config.googleSumPlace()
 
-  def addPurchase(self, price: int, paymentType: PaymentType):
-    self.sheet.append_row(
-      values=[
-        dt.datetime.now().strftime(self.timestampFmt),
-        price,
-        paymentType,
-      ],
-      value_input_option=ValueInputOption.user_entered,
-    )
-    total = int(self.getMonthlyTotal())
-    if total > self.config.rent() > total - price:
-      self.locator.master().alertPayOff(total)
+  def addPurchase(self, price: int, paymentType: PaymentType) -> bool:
+    try:
+      self.sheet.append_row(
+        values=[
+          dt.datetime.now().strftime(self.timestampFmt),
+          price,
+          paymentType,
+        ],
+        value_input_option=ValueInputOption.user_entered,
+      )
+      total = int(self.getMonthlyTotal())
+      if total > self.config.rent() > total - price:
+        self.locator.master().alertPayOff(total)
+      return True
+    except Exception:
+      return False
 
   def getMonthlyTotal(self) -> Optional[int]:
     monthes = self.sheet.get_values(self.sumPlace)
