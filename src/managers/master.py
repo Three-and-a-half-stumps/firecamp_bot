@@ -109,6 +109,7 @@ class Master(LocatorStorage):
         isNotSold.append(article)
     return [isSold, isNotSold]
 
+
   def getAllThings(self) -> List[Thing]:
     return self.repo.getAllThings()
 
