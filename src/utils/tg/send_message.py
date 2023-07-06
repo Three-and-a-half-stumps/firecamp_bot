@@ -1,8 +1,8 @@
 from copy import copy
 from typing import Union, List, Optional
 
-from telebot.apihelper import ApiTelegramException
 from telebot.async_telebot import AsyncTeleBot
+from telebot.asyncio_helper import ApiTelegramException
 from telebot.types import Message, InputMediaPhoto, InputMediaVideo, InputMediaAudio
 
 from .tg_destination import TgDestination, proveTgDestination
@@ -34,6 +34,9 @@ async def send_message(
   reply_markup=None,
   answer_callback_query_id: int = None,
   answer_callback_query_text: str = None,
+  pin_message: bool = False,
+  unpin_message: bool = False,
+  disable_pin_notification: bool = False,
 ) -> List[Message]:
   """
   Отправляет или обновляет сообщение в телеграм
@@ -56,7 +59,13 @@ async def send_message(
 
   :param answer_callback_query_text: см. Telebot.send_message()
   
-  :return: то же, что и Telebot.send_message()
+  :param pin_message: закреплять ли сообщение
+  
+  :param unpin_message: откреплять ли сообщение (только для существующего)
+  
+  :param disable_pin_notification: уведомлять ли о закрепе сообщения
+  
+  :return: то же, что и Telebot.send_message(), но список
   """
   if media is not None and not isinstance(media, list):
     media = [media]
@@ -77,15 +86,21 @@ async def send_message(
       disable_web_page_preview=disable_web_page_preview,
       reply_markup=reply_markup,
       answer_callback_query_id=answer_callback_query_id,
-      answer_callback_query_text=answer_callback_query_text)
+      answer_callback_query_text=answer_callback_query_text,
+      pin_message=pin_message,
+      unpin_message=unpin_message,
+      disable_pin_notification=disable_pin_notification,
+    )
     original_chat = copy(chat)
     for i in range(first_len, len(text), 3900):
       if chat.translateToMessageId is not None:
         chat.translateToMessageId = original_chat.translateToMessageId + len(m)
-      m += await send_message(tg,
-                              chat,
-                              pieces[i:i + 3900],
-                              disable_web_page_preview=disable_web_page_preview)
+      m += await send_message(
+        tg,
+        chat,
+        pieces[i:i + 3900],
+        disable_web_page_preview=disable_web_page_preview,
+      )
     return m
 
   kwargs = {
@@ -100,7 +115,7 @@ async def send_message(
     kwargs['disable_web_page_preview'] = disable_web_page_preview
     kwargs['reply_markup'] = reply_markup
 
-  if chat.translateToMessageId is not None:
+  if chat.translateToMessageId is not None:  # edit message
     if 'media' in kwargs:
       media = kwargs.pop('media')
       m = [None] * len(media)
@@ -109,7 +124,8 @@ async def send_message(
         m[index] = await tg.edit_message_media(
           **kwargs,
           media=media[index],
-          message_id=chat.translateToMessageId + index)
+          message_id=chat.translateToMessageId + index,
+        )
 
       for i in range(len(media)):
         await _ignore_message_is_not_modified(lambda: fun(i))
@@ -117,11 +133,14 @@ async def send_message(
       m = [None]
 
       async def fun():
-        m[0] = await tg.edit_message_text(**kwargs,
-                                          message_id=chat.translateToMessageId)
+        m[0] = await tg.edit_message_text(
+          **kwargs,
+          message_id=chat.translateToMessageId,
+        )
 
       await _ignore_message_is_not_modified(fun)
-  else:
+
+  else:  # send message
     kwargs['reply_to_message_id'] = chat.messageToReplayId
     if 'media' in kwargs:
       m = await tg.send_media_group(**kwargs)
@@ -130,13 +149,39 @@ async def send_message(
       if _logger is not None:
         _logger.message(pieces, kwargs['chat_id'])
 
+  # pins
+  m = m if isinstance(m, list) else [m]
+  messageToPinId = chat.translateToMessageId or (m[0].message_id
+                                                 if m[0] is not None else None)
+  if pin_message and messageToPinId is not None:
+
+    async def pin():
+      await tg.pin_chat_message(
+        chat_id=kwargs['chat_id'],
+        message_id=messageToPinId,
+        disable_notification=disable_pin_notification,
+      )
+
+    await _ignore_message_is_not_modified(pin)
+
+  if unpin_message and messageToPinId is not None:
+
+    async def unpin():
+      await tg.unpin_chat_message(
+        chat_id=kwargs['chat_id'],
+        message_id=messageToPinId,
+      )
+
+    await _ignore_message_is_not_modified(unpin)
+
+  # callback query
   if answer_callback_query_id is not None:
     await tg.answer_callback_query(
       callback_query_id=answer_callback_query_id,
       text=answer_callback_query_text or text,
     )
 
-  return m if isinstance(m, list) else [m]
+  return m
 
 
 def _transform_media(media: [], type: TgMediaType, text, entities) -> []:

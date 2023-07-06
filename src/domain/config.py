@@ -2,6 +2,7 @@ import json
 from typing import List
 
 from src.domain.models.category import Category
+from src.domain.models.daily_info_time import DailyInfoTime
 from src.utils.tg.tg_destination import TgDestination
 
 
@@ -68,6 +69,9 @@ class Config:
   def googleSumPlace(self) -> str:
     return self._paramOrNone('google_sum_place', str)
 
+  def googleMonthesPlace(self) -> str:
+    return self._paramOrNone('google_monthes_place', str)
+
   def defaultFixedPrice(self) -> int:
     return self._paramOrNone('default_fixed_price', int)
 
@@ -93,6 +97,9 @@ class Config:
     return [
       Category.fromJson(data) for data in self._paramOrNone('categories', list)
     ]
+
+  def dailyInfoTime(self) -> DailyInfoTime:
+    return DailyInfoTime.deserialize(self._paramOrNone('daily_info_time', dict))
 
   def _paramOrNone(self, name: str, tp):
     return Config._valueOrNone(self.data.get(name), tp)
