@@ -55,7 +55,7 @@ class InfoManager(LocatorStorage):
     )
 
     overdue = self.locator.master().getOverdueThings()
-    if overdue == '':
+    if len(overdue):
       overdue = P('Просрока нет :)')
     else:
       overdue = [str(a) for a in sorted([thing.article for thing in overdue])]
