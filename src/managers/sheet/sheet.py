@@ -36,7 +36,9 @@ class Sheet(LocatorStorage):
   def addPurchase(self, price: int, paymentType: PaymentType):
     self.sheet.append_row(
       values=[
-        dt.datetime.now().strftime(self.timestampFmt), price, paymentType
+        dt.datetime.now().strftime(self.timestampFmt),
+        price,
+        paymentType,
       ],
       value_input_option=ValueInputOption.user_entered,
     )
