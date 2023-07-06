@@ -19,7 +19,6 @@ class Sheet_Stats(LocatorStorage):
     self.sheet = self.spreadsheet.worksheet(self.config.googleSheetStats())
     self.timestampFmt = self.config.googleTimestampFmt()
     self.dateFmt = self.config.googleDateFmt()
-    self.lifetimePlace = self.config.googleLifetimePlace()
 
   def addRow(self, thing: Thing, price: int, countOnRail: int,
              countAll: int) -> Optional[int]:
