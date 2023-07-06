@@ -53,7 +53,19 @@ class InfoManager(LocatorStorage):
       f'{self.locator.master().getCountAllThings()}',
       types='code',
     )
-    return title + '\n\n' + month + '\n' + money + '\n' + things
+
+    overdue = self.locator.master().getOverdueThings()
+    if overdue == '':
+      overdue = P('Просрока нет :)')
+    else:
+      overdue = [str(a) for a in sorted([thing.article for thing in overdue])]
+      if len(overdue) > 3:
+        overdue = P(', '.join(overdue[:3]), types='code') + '...'
+      else:
+        overdue = P(', '.join(overdue))
+      overdue = P('Просрочено: ') + overdue
+    return (title + '\n\n' + month + '\n' + money + '\n' + things + '\n' +
+            overdue)
 
   @staticmethod
   def today() -> str:
