@@ -115,52 +115,23 @@ class User(TgState, LocatorStorage):
       return
 
     async def formEntered(data):
-      self.master.addPurchase(data[1], data[2])
-      price = data[1]
-      things = list(
-        [self.master.getThing(data[0][i]) for i in range(len(data[0]))])
-      countFreePrice = len(
-        [thing for thing in things if thing.price.type == Price.FREE])
-      thingsFixedPrice = {
-        thing.article:
-          thing.price.fixedPrice if thing.price.type == Price.FIXED else
-          self.config.defaultFixedPrice()
-        for thing in things
-        if not thing.price.type == Price.FREE
-      }
-      allFixed = (countFreePrice == 0)
-      averageExtraPrice = (
-        lambda count: (price - sum(thingsFixedPrice.values())) / count
-      )(countFreePrice if not allFixed else len(thingsFixedPrice)) if price != sum(
-        thingsFixedPrice.values()) else 0
-      isNotSold = []
-      isSold = []
-      for thing in things:
-        finalPrice = thingsFixedPrice.get(
-          thing.article) if not allFixed else thingsFixedPrice.get(
-            thing.article) + averageExtraPrice
-        lifetime = self.master.sellThing(
-          price=averageExtraPrice
-          if thing.price.type == Price.FREE else finalPrice,
-          article=thing.article,
-        )
-        if lifetime < 0:
-          lifetime = '[нет информации]'
-        if lifetime is not None:
-          isSold.append([thing.article, lifetime])
-        else:
-          isNotSold.append(thing.article)
-      if not bool(isNotSold):
+      isSold, isNotSold = self.master.sellThings(
+        donate= data[1],
+        paymentType= data[2],
+        articles=data[0],
+      )
+
+      if len(isNotSold) == 0:
         self.send(
           P('Вещи успешно проданы!', emoji='ok') + '\n\n' +
           'Итоги жизни вещей:\n' +
-          '\n'.join([f'{thing[0]}: {thing[1]} дней' for thing in isSold]))
+          '\n'.join([f'{thing[0]}: {thing[1]} д.' for thing in isSold]))
       else:
         self.send(
           P(f'Вещи {", ".join(isSold)} успешно проданы!', emoji='ok') + '\n\n' +
           'Итоги жизни вещей:\n' +
-          '\n'.join([f'{thing[0]}: {thing[1]} days' for thing in isSold]) +
-          '\n\n' +
+          '\n'.join([f'{thing[0]}: {thing[1]} д.' for thing in isSold]))
+        self.send(
           P(f'Вещи {", ".join(isNotSold)} продать не удалось. Обратитесь к фиксикам',
             emoji='fail'))
       await self.resetTgState()

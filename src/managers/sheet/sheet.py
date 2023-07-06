@@ -26,8 +26,7 @@ class Sheet(LocatorStorage):
   def __init__(self, locator):
     super().__init__(locator)
     self.config = self.locator.config()
-    self.account = service_account(filename=self.config.googleKeyFile())
-    self.spreadsheet = self.account.open(self.config.googleSpreadsheet())
+    self.spreadsheet = self.locator.spreadSheet()
     self.sheet = self.spreadsheet.worksheet(self.config.googleSheet())
     self.timestampFmt = self.config.googleTimestampFmt()
     self.dateFmt = self.config.googleDateFmt()

@@ -1,4 +1,5 @@
 import asyncio
+import datetime as dt
 from typing import Optional, List
 
 from src.domain.locator import LocatorStorage, Locator
@@ -16,6 +17,7 @@ class Master(LocatorStorage):
     self.vk = self.locator.vk()
     self.sheet = self.locator.sheet()
     self.sheetStats = self.locator.sheetStats()
+    self.config = self.locator.config()
 
   def newThing(self, thing: Thing) -> Optional[int]:
     thing.article = self.repo.makeNextArticle()
@@ -80,23 +82,30 @@ class Master(LocatorStorage):
     self.repo.removeThing(article)
     return True
 
-  def addPurchase(
+  def sellThings(
     self,
-    price: int,
+    donate: int,
     paymentType: PaymentType,
-  ):
-    self.sheet.addPurchase(price, paymentType)
-    return
-
-  def sellThing(
-    self,
-    price: int,
-    article: int,
-  ) -> Optional[int]:
-    lifetime = self.grabStats(price, self.getThing(article))
-    if self.removeThing(article):
-      return lifetime
-    return False
+    articles: List[int],
+  ) -> [List[int, Optional[int]], List[int]]:
+    self.addPurchase(price=donate, paymentType=paymentType)
+    things = [self.getThing(a) for a in articles]
+    averageExtraPrice = self._averageExtraPrice(things, donate)
+    thingsFinalPrice = self._distributedDonate(averageExtraPrice, things)
+    isNotSold = []
+    isSold = []
+    for article, price in thingsFinalPrice:
+      thing = self.getThing(article)
+      self._pushStats(
+        price=price,
+        thing=thing,
+      )
+      lifetime = (dt.datetime.now() - thing.timestamp).days if thing.timestamp is not None else None
+      if self.removeThing(article):
+        isSold.append([article, lifetime])
+      else:
+        isNotSold.append(article)
+    return [isSold, isNotSold]
 
   def getAllThings(self) -> List[Thing]:
     return self.repo.getAllThings()
@@ -121,13 +130,57 @@ class Master(LocatorStorage):
         ),
       ))
 
-  def grabStats(self, price: int, thing: Thing) -> Optional[int]:
+  def addPurchase(
+    self,
+    price: int,
+    paymentType: PaymentType,
+  ):
+    self.sheet.addPurchase(price, paymentType)
+    return
+
+  def _pushStats(self, price: int, thing: Thing) -> bool:
     return self.sheetStats.addRow(
       thing=thing,
       price=price,
       countOnRail=self.getCountThingsOnRail(thing.rail),
       countAll=self.getCountAllThings(),
     )
+
+  def _distributedDonate(self, averageExtraPrice,
+                         things: List[Thing]) -> {int, int}:
+    allFixed = len(
+      [thing for thing in things if thing.price.type == Price.FREE]) == 0
+    thingsFinalPrice = dict.fromkeys([thing.article for thing in things])
+    for thing in things:
+      match thing.price.type:
+        case Price.FREE:
+          thingsFinalPrice[thing.article] = averageExtraPrice
+        case Price.DEFAULT_FIXED:
+          thingsFinalPrice[thing.article] = self.config.defaultFixedPrice(
+          ) + averageExtraPrice if allFixed else 0
+        case Price.FIXED:
+          thingsFinalPrice[
+            thing.
+            article] = thing.price.fixedPrice + averageExtraPrice if allFixed else 0
+        case _:
+          raise Exception('Price type error.')
+    return things
+
+  def _averageExtraPrice(self, things: List[Thing], donate: int):
+    thingsFixedPrice = [
+      thing.price.fixedPrice or self.config.defaultFixedPrice()
+      for thing in things
+      if thing.price.type != Price.FREE
+    ]
+    sumFixedPrice = sum(thingsFixedPrice)
+    countFixedPrice = len(thingsFixedPrice)
+    countFreePrice = len(
+      [thing for thing in things if thing.price.type == Price.FREE])
+    allFixed = (countFreePrice == 0)
+    count = countFreePrice if not allFixed else countFixedPrice
+    averageExtraPrice = ((donate - sumFixedPrice) /
+                         count) if donate != sumFixedPrice else 0
+    return averageExtraPrice
 
 
 # END

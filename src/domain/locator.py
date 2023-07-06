@@ -15,6 +15,8 @@ class Locator:
     self._loggerStream = None
     self._master = None
     self._repo = None
+    self._serviceAccount = None
+    self._spreadSheet = None
     self._sheet = None
     self._sheetStats = None
     self._sysLogger = None
@@ -97,6 +99,20 @@ class Locator:
       self._repo = Repo(self)
     return self._repo
 
+  def serviceAccount(self):  #GoogleBot
+    if self._serviceAccount is None:
+      from gspread import service_account
+      self._serviceAccount = service_account(
+        filename=self.config().googleKeyFile())
+    return self._serviceAccount
+
+  def spreadSheet(self):
+    if self._spreadSheet is None:
+      from gspread import service_account
+      self._spreadSheet = self.serviceAccount().open(
+        self.config().googleSpreadsheet())
+    return self._spreadSheet
+
   def sheet(self):
     if self._sheet is None:
       from src.managers.sheet.sheet import Sheet
@@ -104,10 +120,10 @@ class Locator:
     return self._sheet
 
   def sheetStats(self):
-    if self._sheet_stats is None:
+    if self._sheetStats is None:
       from src.managers.sheet.sheetstats import SheetStats
       self._sheetStats = SheetStats(self)
-    return self._sheet_stats
+    return self._sheetStats
 
   def tg(self):
     if self._tg is None:
