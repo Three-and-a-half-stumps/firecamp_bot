@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Callable
 
 from src.domain.locator import LocatorStorage
 from src.domain.models.thing import Thing
@@ -41,3 +41,6 @@ class Repo(LocatorStorage):
 
   def getAllThings(self) -> List[Thing]:
     return self.thingsRepo.findAll(predicat=lambda _: True)
+
+  def getThingsIf(self, predicat: Callable[[Thing], bool]) -> List[Thing]:
+    return self.thingsRepo.findAll(predicat)

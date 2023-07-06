@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import List
 
 
 def button_row_layout(count: int) -> List[int]:
@@ -22,7 +22,6 @@ def list_to_layout(elems: []) -> List[List]:
    * *            * *
   
   :param elems: элементы, которые нужно распределить
-  :param transform: функция трансформации элементов (то же, что первый аргумент функции map)
   :return: элементы, красиво распределённые по рядам
   """
   layout = button_row_layout(len(elems))

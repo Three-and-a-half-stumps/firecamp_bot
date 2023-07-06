@@ -181,6 +181,17 @@ class User(TgState, LocatorStorage):
       return
     self.send(self.info.dailySummary())
 
+  async def handleOverdue(self):
+    if not self._checkTrusted(checkGroup=True):
+      return
+    things = self.master.getOverdueThings()
+    if len(things) == 0:
+      self.send(P('Нет просроченных вещей :)', emoji='ok'))
+    else:
+      articles = sorted([thing.article for thing in things])
+      articles = ', '.join([str(article) for article in articles])
+      self.send(P('Просрок: ') + P(f'{articles}', types='code'))
+
   async def handleReadd(self):
     if not self._checkDev():
       return
@@ -212,7 +223,7 @@ class User(TgState, LocatorStorage):
   async def handleCountThings(self):
     if not self._checkTrusted():
       return
-    self.send(f'Вещей - {self.master.getCountAllThings()} шт.')
+    self.send(f'Вещей — {self.master.getCountAllThings()} шт.')
 
   async def handleCountThingsOnRail(self):
     if not self._checkTrusted():
@@ -236,7 +247,6 @@ class User(TgState, LocatorStorage):
   async def _handleNew(self, setActionTimestamp: bool = False):
 
     async def formEntered(data):
-      print(f'photo: {data[0]}')
       article = self.master.newThing(
         Thing(
           rail=data[2],
@@ -269,7 +279,7 @@ class User(TgState, LocatorStorage):
           self.inputFields.thingName(),
           self.inputFields.thingRailNum(),
           self.inputFields.thingPricePolicy(),
-          self.inputFields.thingCateogry(),
+          self.inputFields.thingCategory(),
           self.inputFields.thingDescription(),
           *([self.inputFields.thingDatatime()] if setActionTimestamp else []),
         ],
