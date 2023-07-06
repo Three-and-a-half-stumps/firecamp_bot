@@ -1,5 +1,6 @@
 import asyncio
 import datetime as dt
+
 from typing import Optional, List
 
 from src.domain.locator import LocatorStorage, Locator
@@ -69,12 +70,6 @@ class Master(LocatorStorage):
   def getThing(self, article: int) -> Optional[Thing]:
     return self.repo.getThing(article)
 
-  def getMonthlyTotal(self) -> Optional[int]:
-    return self.sheet.getMonthlyTotal()
-
-  def getMonthEnd(self):
-    return self.sheet.getMonthEnd()
-
   def removeThing(self, article: int) -> bool:
     thing = self.repo.getThing(article)
     if thing is None:
@@ -101,8 +96,9 @@ class Master(LocatorStorage):
         price=price,
         thing=thing,
       )
-      lifetime = (cut_time(dt.datetime.now()) -
-                  cut_time(thing.timestamp)).days if thing.timestamp is not None else None
+      lifetime = (
+        cut_time(dt.datetime.now()) -
+        cut_time(thing.timestamp)).days if thing.timestamp is not None else None
       if self.removeThing(article):
         isSold.append([article, lifetime])
       else:
@@ -182,6 +178,15 @@ class Master(LocatorStorage):
     averageExtraPrice = ((donate - sumFixedPrice) /
                          count) if donate != sumFixedPrice else 0
     return averageExtraPrice
+
+  async def sendDailyInfoToGroup(self):
+    await send_message(
+      tg=self.locator.tg(),
+      chat=self.locator.config().tgGroupId(),
+      text=self.locator.info().dailySummary(),
+      pin_message=True,
+      disable_pin_notification=True,
+    )
 
 
 # END

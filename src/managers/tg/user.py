@@ -1,11 +1,10 @@
 import asyncio
-import datetime as dt
 
 from telebot.async_telebot import AsyncTeleBot
 from telebot.types import CallbackQuery, Message
 
 from src.domain.locator import LocatorStorage, Locator
-from src.domain.models.thing import Thing
+from src.domain.models.thing import Thing, Price
 from src.utils.tg.piece import P
 from src.utils.tg.send_message import send_message
 from src.utils.tg.tg_destination import TgDestination
@@ -175,11 +174,12 @@ class User(TgState, LocatorStorage):
   async def handleTotal(self):
     if not self._checkTrusted(checkGroup=True):
       return
-    percent = round(self.master.getMonthlyTotal() / self.config.rent() * 100)
-    timeDifference = self.master.getMonthEnd() - dt.datetime.now()
-    self.send(
-      f'Собрано {self.master.getMonthlyTotal()}р. А это аж {percent}% от аренды. '
-      f'До конца арендного месяца осталось {timeDifference.days}д.')
+    self.send(self.info.monthlyTotalMessage())
+
+  async def handleDaily(self):
+    if not self._checkTrusted(checkGroup=True):
+      return
+    self.send(self.info.dailySummary())
 
   async def handleReadd(self):
     if not self._checkDev():

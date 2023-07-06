@@ -1,6 +1,7 @@
 import datetime as dt
 
 from gspread.utils import ValueInputOption
+from typing import Optional
 
 from src.domain.locator import LocatorStorage
 from src.domain.models.thing import Thing, Price
@@ -25,8 +26,9 @@ class SheetStats(LocatorStorage):
     countAll: int,
   ) -> bool:
     try:
-      lifetime = (cut_time(dt.datetime.now()) -
-                  cut_time(thing.timestamp)) if thing.timestamp is not None else None
+      lifetime = (
+        cut_time(dt.datetime.now()) -
+        cut_time(thing.timestamp)) if thing.timestamp is not None else None
       match thing.price.type:
         case Price.FIXED:
           fixedPrice = thing.price.fixedPrice

@@ -7,6 +7,7 @@ from src.domain.commands import global_command_list
 class Locator:
 
   def __init__(self):
+    self._asyncQueues = None
     self._commandsManager = None
     self._config = None
     self._inputFieldsConstructor = None
@@ -15,6 +16,7 @@ class Locator:
     self._logger = None
     self._loggerStream = None
     self._master = None
+    self._regularInfo = None
     self._repo = None
     self._serviceAccount = None
     self._spreadSheet = None
@@ -26,6 +28,14 @@ class Locator:
     self._thingsRepo = None
     self._validatorsConstructor = None
     self._vk = None
+    self._vkApi = None
+    self._vkGroupEventHandler = None
+
+  def asyncQueues(self):
+    if self._asyncQueues is None:
+      from src.domain.async_queus import AsyncQueues
+      self._asyncQueues = AsyncQueues(self)
+    return self._asyncQueues
 
   def commandsManager(self):
     if self._commandsManager is None:
@@ -100,6 +110,12 @@ class Locator:
       self._master = Master(self)
     return self._master
 
+  def regularInfo(self):
+    if self._regularInfo is None:
+      from src.managers.regular_info import RegularInfo
+      self._regularInfo = RegularInfo(self)
+    return self._regularInfo
+
   def repo(self):
     if self._repo is None:
       from src.managers.repo.repo import Repo
@@ -128,7 +144,7 @@ class Locator:
 
   def sheetStats(self):
     if self._sheetStats is None:
-      from src.managers.sheet.sheetstats import SheetStats
+      from src.managers.sheet.sheet_stats import SheetStats
       self._sheetStats = SheetStats(self)
     return self._sheetStats
 
@@ -161,6 +177,21 @@ class Locator:
       from src.managers.vk.vk import Vk
       self._vk = Vk(self)
     return self._vk
+
+  def vkApi(self):
+    if self._vkApi is None:
+      from vk_api import VkApi
+      self._vkApi = VkApi(
+        token=self.config().vkAccessToken(),
+        api_version='5.131',
+      )
+    return self._vkApi
+
+  def vkGroupEventHandler(self):
+    if self._vkGroupEventHandler is None:
+      from src.managers.vk.vk_group_event_handler import VkGroupEventHandler
+      self._vkGroupEventHandler = VkGroupEventHandler(self)
+    return self._vkGroupEventHandler
 
 
 class LocatorStorage:
