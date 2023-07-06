@@ -15,7 +15,7 @@ class Master(LocatorStorage):
     self.repo = self.locator.repo()
     self.vk = self.locator.vk()
     self.sheet = self.locator.sheet()
-    self.sheet_stats = self.locator.sheet_stats()
+    self.sheetStats = self.locator.sheetStats()
 
   def newThing(self, thing: Thing) -> Optional[int]:
     thing.article = self.repo.makeNextArticle()
@@ -122,7 +122,7 @@ class Master(LocatorStorage):
       ))
 
   def grabStats(self, price: int, thing: Thing) -> Optional[int]:
-    return self.sheet_stats.addRow(
+    return self.sheetStats.addRow(
       thing=thing,
       price=price,
       countOnRail=self.getCountThingsOnRail(thing.rail),

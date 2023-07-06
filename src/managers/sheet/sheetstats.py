@@ -9,7 +9,7 @@ from src.managers.sheet.sheet import PaymentType
 from src.domain.models.thing import Thing, Price
 
 
-class Sheet_Stats(LocatorStorage):
+class SheetStats(LocatorStorage):
 
   def __init__(self, locator):
     super().__init__(locator)

@@ -16,7 +16,7 @@ class Locator:
     self._master = None
     self._repo = None
     self._sheet = None
-    self._sheet_stats = None
+    self._sheetStats = None
     self._sysLogger = None
     self._tg = None
     self._tgLog = None
@@ -103,10 +103,10 @@ class Locator:
       self._sheet = Sheet(self)
     return self._sheet
 
-  def sheet_stats(self):
+  def sheetStats(self):
     if self._sheet_stats is None:
-      from src.managers.sheet.sheet_stats import Sheet_Stats
-      self._sheet_stats = Sheet_Stats(self)
+      from src.managers.sheet.sheetstats import SheetStats
+      self._sheetStats = SheetStats(self)
     return self._sheet_stats
 
   def tg(self):
