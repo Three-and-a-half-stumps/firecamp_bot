@@ -113,8 +113,6 @@ class Master(LocatorStorage):
       tg=self.locator.tg(),
       chat=self.locator.config().tgGroupId(),
       text=self.locator.info().dailySummary(),
-      pin_message=True,
-      disable_pin_notification=True,
     )
 
 

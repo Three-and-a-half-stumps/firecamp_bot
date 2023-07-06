@@ -1,6 +1,6 @@
 from typing import Optional
 
-from vk_api import VkApi, VkUpload, ApiError
+from vk_api import VkUpload, ApiError
 
 from src.domain.locator import LocatorStorage, Locator
 from src.domain.models.thing import Thing, Price, Category
