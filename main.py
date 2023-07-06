@@ -1,5 +1,10 @@
 #!python3
 import asyncio
+import datetime as dt
+from random import randint
+
+from typing import List
+
 import src.domain.models.thing as thing_module
 import src.domain.thing as old_thing_module
 import locale
@@ -48,8 +53,34 @@ def migrateThing():
   [repo.put(thing) for thing in things]
 
 
+def migrateCategory():
+  repo = glob().thingsRepo()
+  things: List[thing_module.Thing] = repo.findAll(lambda _: True)
+  for thing in things:
+    if not isinstance(thing.category, int):
+      thing.category = thing_module.Category.internalId(thing.category)
+      thing.notify()
+
+
+def setTimestampForOldThings():
+  repo = glob().thingsRepo()
+  things: List[thing_module.Thing] = repo.findAll(lambda _: True)
+  first = dt.datetime(year=2023, month=5, day=1)
+  last = dt.datetime(year=2023, month=6, day=1)
+  daysDispersion = (last - first).days
+  for thing in things:
+    if thing.timestamp is None:
+      thing.timestamp = first + dt.timedelta(days=randint(
+        0,
+        daysDispersion - 1,
+      ))
+      thing.notify()
+
+
 async def main():
   migrateThing()
+  migrateCategory()
+  setTimestampForOldThings()
   locator = glob()
   set_locale(config=locator.config())
 

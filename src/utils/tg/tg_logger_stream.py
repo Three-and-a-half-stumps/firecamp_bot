@@ -14,6 +14,9 @@ class TelegramLoggerStream:
     self.chats = chats
 
   def write(self, report):
+    stdout.write(report)
+    if 'Too Many Requests: retry after' in report:
+      return
     for chat in self.chats:
       asyncio.create_task(
         self.tg.send_message(
@@ -22,4 +25,3 @@ class TelegramLoggerStream:
           text=report,
           disable_web_page_preview=True,
         ))
-    stdout.write(report)

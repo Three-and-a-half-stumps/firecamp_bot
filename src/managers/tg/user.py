@@ -210,7 +210,7 @@ class User(TgState, LocatorStorage):
   async def handleCountThings(self):
     if not self._checkTrusted():
       return
-    self.send(f'Вещей - {self.master.getCountAllThings()} шт.')
+    self.send(f'Вещей — {self.master.getCountAllThings()} шт.')
 
   async def handleCountThingsOnRail(self):
     if not self._checkTrusted():
@@ -234,7 +234,6 @@ class User(TgState, LocatorStorage):
   async def _handleNew(self, setActionTimestamp: bool = False):
 
     async def formEntered(data):
-      print(f'photo: {data[0]}')
       article = self.master.newThing(
         Thing(
           rail=data[2],
@@ -267,7 +266,7 @@ class User(TgState, LocatorStorage):
           self.inputFields.thingName(),
           self.inputFields.thingRailNum(),
           self.inputFields.thingPricePolicy(),
-          self.inputFields.thingCateogry(),
+          self.inputFields.thingCategory(),
           self.inputFields.thingDescription(),
           *([self.inputFields.thingDatatime()] if setActionTimestamp else []),
         ],
