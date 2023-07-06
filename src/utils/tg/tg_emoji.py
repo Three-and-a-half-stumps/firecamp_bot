@@ -12,6 +12,7 @@ class Emoji:
   OFFICER = '🫡'
   SPIKE = '🖖'
   POINT_RIGHT = '👉'
+  INFO_BOARD = '📈'
 
 
 def get_emoji(emoji: str = None):
@@ -25,4 +26,5 @@ def get_emoji(emoji: str = None):
     'infoglob': Emoji.CAKE,
     'translation': Emoji.OFFICER,
     'place': Emoji.SPIKE,
+    'info_board': Emoji.INFO_BOARD,
   }.get(emoji)
