@@ -83,27 +83,27 @@ class Master(LocatorStorage):
     donate: int,
     paymentType: PaymentType,
     articles: List[int],
-  ) -> [List[int, Optional[int]], List[int]]:
+  ):
     self.addPurchase(price=donate, paymentType=paymentType)
     things = [self.getThing(a) for a in articles]
     averageExtraPrice = self._averageExtraPrice(things, donate)
     thingsFinalPrice = self._distributedDonate(averageExtraPrice, things)
     isNotSold = []
     isSold = []
-    for article, price in thingsFinalPrice:
+    for article, price in thingsFinalPrice.items():
       thing = self.getThing(article)
       self._pushStats(
         price=price,
         thing=thing,
       )
-      lifetime = (cut_time(dt.datetime.now()) -
-                  cut_time(thing.timestamp)).days if thing.timestamp is not None else None
+      lifetime = (
+        cut_time(dt.datetime.now()) -
+        cut_time(thing.timestamp)).days if thing.timestamp is not None else None
       if self.removeThing(article):
         isSold.append([article, lifetime])
       else:
         isNotSold.append(article)
-    return [isSold, isNotSold]
-
+    return isSold, isNotSold
 
   def getAllThings(self) -> List[Thing]:
     return self.repo.getAllThings()
@@ -146,8 +146,11 @@ class Master(LocatorStorage):
       countAll=self.getCountAllThings(),
     )
 
-  def _distributedDonate(self, averageExtraPrice,
-                         things: List[Thing]) -> {int, int}:
+  def _distributedDonate(
+    self,
+    averageExtraPrice,
+    things: List[Thing],
+  ) -> List[Thing]:
     allFixed = len(
       [thing for thing in things if thing.price.type == Price.FREE]) == 0
     thingsFinalPrice = dict.fromkeys([thing.article for thing in things])
@@ -157,14 +160,14 @@ class Master(LocatorStorage):
           thingsFinalPrice[thing.article] = averageExtraPrice
         case Price.DEFAULT_FIXED:
           thingsFinalPrice[thing.article] = self.config.defaultFixedPrice(
-          ) + averageExtraPrice if allFixed else 0
+          ) + (averageExtraPrice if allFixed else 0)
         case Price.FIXED:
           thingsFinalPrice[
             thing.
-            article] = thing.price.fixedPrice + averageExtraPrice if allFixed else 0
+            article] = thing.price.fixedPrice + (averageExtraPrice if allFixed else 0)
         case _:
           raise Exception('Price type error.')
-    return things
+    return thingsFinalPrice
 
   def _averageExtraPrice(self, things: List[Thing], donate: int):
     thingsFixedPrice = [

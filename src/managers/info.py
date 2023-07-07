@@ -7,11 +7,7 @@ from src.utils.tg.piece import Pieces, P
 
 class InfoManager(LocatorStorage):
   """
-<<<<<<< HEAD
   Собирает информацию по всей программе
-=======
-  Собирает информация по всей программе
->>>>>>> master
   """
 
   def __init__(self, locator: Locator):
@@ -72,7 +68,7 @@ class InfoManager(LocatorStorage):
 
   def resultsOfLifetime(self, isSold: [[int, int]]) -> str:
     return ('Итоги жизни вещей:\n' +
-          '\n'.join([f'{thing[0]}: {thing[1]} д.' for thing in isSold]))
+            '\n'.join([f'{thing[0]}: {thing[1] if thing[1] is not None else "неизвестно"} д.' for thing in isSold]))
 
   @staticmethod
   def today() -> str:

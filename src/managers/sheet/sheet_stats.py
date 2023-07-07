@@ -16,6 +16,7 @@ class SheetStats(LocatorStorage):
     self.sheet = self.spreadsheet.worksheet(self.config.googleSheetStats())
     self.timestampFmt = self.config.googleTimestampFmt()
     self.dateFmt = self.config.googleDateFmt()
+    self.categories = self.locator.config().categories()
 
   def addRow(
     self,
@@ -25,8 +26,9 @@ class SheetStats(LocatorStorage):
     countAll: int,
   ) -> bool:
     try:
-      lifetime = (cut_time(dt.datetime.now()) -
-                  cut_time(thing.timestamp)) if thing.timestamp is not None else None
+      lifetime = (
+        cut_time(dt.datetime.now()) -
+        cut_time(thing.timestamp)) if thing.timestamp is not None else None
       match thing.price.type:
         case Price.FIXED:
           fixedPrice = thing.price.fixedPrice
@@ -43,7 +45,7 @@ class SheetStats(LocatorStorage):
           thing.timestamp.strftime(self.timestampFmt)
           if thing.timestamp is not None else None,  #Время появления
           thing.rail,  #Номер рейла
-          thing.category,  #Категория
+          self.config.findCateogryByInternalId(thing.category).buttonTitle,  #Категория
           thing.price.type,  #Ценовая политика
           fixedPrice,  #Установленная цена
           price,  #Цена продажи
