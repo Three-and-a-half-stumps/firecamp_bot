@@ -7,7 +7,11 @@ from src.utils.tg.piece import Pieces, P
 
 class InfoManager(LocatorStorage):
   """
+<<<<<<< HEAD
   Собирает информацию по всей программе
+=======
+  Собирает информация по всей программе
+>>>>>>> master
   """
 
   def __init__(self, locator: Locator):
@@ -53,11 +57,22 @@ class InfoManager(LocatorStorage):
       f'{self.locator.master().getCountAllThings()}',
       types='code',
     )
-    return title + '\n\n' + month + '\n' + money + '\n' + things
+    overdue = self.locator.master().getOverdueThings()
+    if len(overdue) == 0:
+      overdue = P('Просрока нет :)')
+    else:
+      overdue = [str(a) for a in sorted([thing.article for thing in overdue])]
+      if len(overdue) > 3:
+        overdue = P(', '.join(overdue[:3]), types='code') + '...'
+      else:
+        overdue = P(', '.join(overdue))
+      overdue = P('Просрочено: ') + overdue
+    return (title + '\n\n' + month + '\n' + money + '\n' + things + '\n' +
+            overdue)
 
   def resultsOfLifetime(self, isSold: [[int, int]]) -> str:
     return ('Итоги жизни вещей:\n' +
-            '\n'.join([f'{thing[0]}: {thing[1]} д.' for thing in isSold]))
+          '\n'.join([f'{thing[0]}: {thing[1]} д.' for thing in isSold]))
 
   @staticmethod
   def today() -> str:

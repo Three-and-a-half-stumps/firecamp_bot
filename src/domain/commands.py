@@ -80,6 +80,20 @@ global_command_list = [
       True,
     ),
     (
+      'daily',
+      '/daily',
+      'Узнать общую информацию на сегодня',
+      'handleDaily',
+      True,
+    ),
+    (
+      'overdue',
+      '/overdue',
+      'Показать артикулы просроченных вещей',
+      'handleOverdue',
+      True,
+    ),
+    (
       'count_things',
       '/count_things',
       'Узнать количество всех вещей',

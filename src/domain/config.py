@@ -104,6 +104,9 @@ class Config:
   def dailyInfoTime(self) -> DailyInfoTime:
     return DailyInfoTime.deserialize(self._paramOrNone('daily_info_time', dict))
 
+  def findCateogryByInternalId(self, id: int) -> Category:
+    return [cat for cat in self.categories() if cat.internalId == id][0]
+
   def _paramOrNone(self, name: str, tp):
     return Config._valueOrNone(self.data.get(name), tp)
 

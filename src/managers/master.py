@@ -117,11 +117,14 @@ class Master(LocatorStorage):
   def getCountThingsOnRail(self, rail: str) -> int:
     return len(self.getThingsOnRail(rail))
 
+  def getOverdueThings(self) -> List[Thing]:
+    return self.repo.getThingsIf(self._thingIsOverdue)
+
   def alertPayOff(self, value: int):
     asyncio.create_task(
       send_message(
         tg=self.locator.tg(),
-        chat=self.locator.config().tgGroupId(),
+        chat=self.config.tgGroupId(),
         text=P(
           f"Ура! Мы теперь работаем не платно. Накопили уже {value}",
           emoji='infoglob',
@@ -182,10 +185,16 @@ class Master(LocatorStorage):
   async def sendDailyInfoToGroup(self):
     await send_message(
       tg=self.locator.tg(),
-      chat=self.locator.config().tgGroupId(),
+      chat=self.config.tgGroupId(),
       text=self.locator.info().dailySummary(),
-      pin_message=True,
-      disable_pin_notification=True,
     )
+
+  def _thingIsOverdue(self, thing: Thing) -> bool:
+    if thing.timestamp is None:
+      return False
+    category = self.config.findCateogryByInternalId(thing.category)
+    return ((dt.datetime.today() - thing.timestamp).days
+            >= category.defaultExpirationDaysCount)
+
 
 # END

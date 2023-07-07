@@ -27,6 +27,10 @@ class Category:
       Category.OTHER,
     ]
 
+  @staticmethod
+  def internalId(category: str) -> int:
+    return Category.getList().index(category)
+
 
 class Price(Serializable):
 
