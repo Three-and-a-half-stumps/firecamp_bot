@@ -53,6 +53,7 @@ class InfoManager(LocatorStorage):
       f'{self.locator.master().getCountAllThings()}',
       types='code',
     )
+
     overdue = self.locator.master().getOverdueThings()
     if len(overdue) == 0:
       overdue = P('Просрока нет :)')
@@ -67,8 +68,10 @@ class InfoManager(LocatorStorage):
             overdue)
 
   def resultsOfLifetime(self, isSold: [[int, int]]) -> str:
-    return ('Итоги жизни вещей:\n' +
-            '\n'.join([f'{thing[0]}: {thing[1] if thing[1] is not None else "неизвестно"} д.' for thing in isSold]))
+    return ('Итоги жизни вещей:\n' + '\n'.join([
+      f'{thing[0]}: {thing[1] if thing[1] is not None else "неизвестно"} д.'
+      for thing in isSold
+    ]))
 
   @staticmethod
   def today() -> str:

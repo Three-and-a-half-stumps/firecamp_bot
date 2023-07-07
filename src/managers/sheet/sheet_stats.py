@@ -1,6 +1,7 @@
 import datetime as dt
 
 from gspread.utils import ValueInputOption
+from typing import Optional
 
 from src.domain.locator import LocatorStorage
 from src.domain.models.thing import Thing, Price
@@ -45,7 +46,8 @@ class SheetStats(LocatorStorage):
           thing.timestamp.strftime(self.timestampFmt)
           if thing.timestamp is not None else None,  #Время появления
           thing.rail,  #Номер рейла
-          self.config.findCateogryByInternalId(thing.category).buttonTitle,  #Категория
+          self.config.findCateogryByInternalId(
+            thing.category).buttonTitle,  #Категория
           thing.price.type,  #Ценовая политика
           fixedPrice,  #Установленная цена
           price,  #Цена продажи

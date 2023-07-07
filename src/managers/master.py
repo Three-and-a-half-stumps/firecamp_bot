@@ -159,12 +159,11 @@ class Master(LocatorStorage):
         case Price.FREE:
           thingsFinalPrice[thing.article] = averageExtraPrice
         case Price.DEFAULT_FIXED:
-          thingsFinalPrice[thing.article] = self.config.defaultFixedPrice(
-          ) + (averageExtraPrice if allFixed else 0)
+          thingsFinalPrice[thing.article] = self.config.defaultFixedPrice() + (
+            averageExtraPrice if allFixed else 0)
         case Price.FIXED:
-          thingsFinalPrice[
-            thing.
-            article] = thing.price.fixedPrice + (averageExtraPrice if allFixed else 0)
+          thingsFinalPrice[thing.article] = thing.price.fixedPrice + (
+            averageExtraPrice if allFixed else 0)
         case _:
           raise Exception('Price type error.')
     return thingsFinalPrice
