@@ -1,4 +1,5 @@
 import datetime as dt
+import traceback
 
 from gspread.utils import ValueInputOption
 from typing import Optional
@@ -14,10 +15,11 @@ class SheetStats(LocatorStorage):
     super().__init__(locator)
     self.config = self.locator.config()
     self.spreadsheet = self.locator.spreadSheet()
-    self.sheet = self.spreadsheet.worksheet(self.config.googleSheetStats())
+    self.sheetStats = self.spreadsheet.worksheet(self.config.googleSheetStats())
     self.timestampFmt = self.config.googleTimestampFmt()
     self.dateFmt = self.config.googleDateFmt()
     self.categories = self.locator.config().categories()
+    self.logger = self.locator.logger()
 
   def addRow(
     self,
@@ -27,9 +29,6 @@ class SheetStats(LocatorStorage):
     countAll: int,
   ) -> bool:
     try:
-      lifetime = (
-        cut_time(dt.datetime.now()) -
-        cut_time(thing.timestamp)) if thing.timestamp is not None else None
       match thing.price.type:
         case Price.FIXED:
           fixedPrice = thing.price.fixedPrice
@@ -39,7 +38,7 @@ class SheetStats(LocatorStorage):
           fixedPrice = 0
         case _:
           raise Exception('Price type error.')
-      self.sheet.append_row(
+      self.sheetStats.append_row(
         values=[
           dt.datetime.now().strftime(self.timestampFmt),  #Время продажи
           thing.article,  #Артикул
@@ -53,11 +52,14 @@ class SheetStats(LocatorStorage):
           price,  #Цена продажи
           countOnRail,  #Кол-во вещей на рейле
           countAll,  #Общее кол-во вещей
-          lifetime.days
-          if isinstance(lifetime, dt.timedelta) else None,  #Время жизни,
+          thing.lifetime(),  #Время жизни,
         ],
         value_input_option=ValueInputOption.user_entered,
       )
       return True
     except Exception:
+      self._error(traceback.format_exc())
       return False
+
+  def _error(self, report):
+    self.logger.error(report)

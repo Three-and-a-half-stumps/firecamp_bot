@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 from vk_api import VkUpload, ApiError
@@ -68,11 +69,11 @@ class Vk(LocatorStorage):
       price=self._getPrice(thing.price),
     )
 
-  def removeProduct(self, vkId: int):
-    self.api.market.delete(
+  def removeProduct(self, vkId: int) -> bool:
+    return self.api.market.delete(
       item_id=vkId,
       owner_id=self.groupId,
-    )
+    ) == 1
 
   def _getPrice(self, price: Price) -> int:
     if price.type == Price.FREE:

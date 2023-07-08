@@ -3,7 +3,7 @@ import datetime as dt
 
 from src.domain.locator import LocatorStorage, Locator
 from src.domain.models.thing import Price
-from src.managers.sheet.sheet import PaymentType
+from src.managers.sheet.sheet_payment import PaymentType
 from src.utils.tg.piece import P, Pieces
 from src.utils.tg.tg_destination import TgDestination
 from src.utils.tg.tg_input_field import TgInputField, InputFieldButton

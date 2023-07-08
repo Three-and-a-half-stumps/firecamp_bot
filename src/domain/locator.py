@@ -20,7 +20,7 @@ class Locator:
     self._repo = None
     self._serviceAccount = None
     self._spreadSheet = None
-    self._sheet = None
+    self._sheetPayment = None
     self._sheetStats = None
     self._sysLogger = None
     self._tg = None
@@ -136,11 +136,11 @@ class Locator:
         self.config().googleSpreadsheet())
     return self._spreadSheet
 
-  def sheet(self):
-    if self._sheet is None:
-      from src.managers.sheet.sheet import Sheet
-      self._sheet = Sheet(self)
-    return self._sheet
+  def sheetPayment(self):
+    if self._sheetPayment is None:
+      from src.managers.sheet.sheet_payment import SheetPayment
+      self._sheetPayment = SheetPayment(self)
+    return self._sheetPayment
 
   def sheetStats(self):
     if self._sheetStats is None:

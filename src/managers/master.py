@@ -1,14 +1,13 @@
 import asyncio
 import datetime as dt
 
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from src.domain.locator import LocatorStorage, Locator
 from src.domain.models.thing import Thing, Price
-from src.managers.sheet.sheet import PaymentType
+from src.managers.sheet.sheet_payment import PaymentType
 from src.utils.tg.piece import P
 from src.utils.tg.send_message import send_message
-from src.utils.datetime.utils import cut_time
 
 
 class Master(LocatorStorage):
@@ -17,7 +16,7 @@ class Master(LocatorStorage):
     super().__init__(locator)
     self.repo = self.locator.repo()
     self.vk = self.locator.vk()
-    self.sheet = self.locator.sheet()
+    self.sheetPayment = self.locator.sheetPayment()
     self.sheetStats = self.locator.sheetStats()
     self.config = self.locator.config()
 
@@ -42,7 +41,8 @@ class Master(LocatorStorage):
       return False
     thing.name = newName
     thing.description = newDescription
-    self.vk.removeProduct(thing.vkId)
+    if not self.vk.removeProduct(thing.vkId):
+      return False
     newVkId = self.vk.addProduct(thing)
     if newVkId is None:
       self.repo.removeThing(article)
@@ -74,9 +74,7 @@ class Master(LocatorStorage):
     thing = self.repo.getThing(article)
     if thing is None:
       return False
-    self.vk.removeProduct(thing.vkId)
-    self.repo.removeThing(article)
-    return True
+    return self.vk.removeProduct(self.repo.removeThing(article).vkId)
 
   def sellThings(
     self,
@@ -96,11 +94,8 @@ class Master(LocatorStorage):
         price=price,
         thing=thing,
       )
-      lifetime = (
-        cut_time(dt.datetime.now()) -
-        cut_time(thing.timestamp)).days if thing.timestamp is not None else None
       if self.removeThing(article):
-        isSold.append([article, lifetime])
+        isSold.append((article, thing.lifetime()))
       else:
         isNotSold.append(article)
     return isSold, isNotSold
@@ -136,7 +131,7 @@ class Master(LocatorStorage):
     price: int,
     paymentType: PaymentType,
   ):
-    return self.sheet.addPurchase(price, paymentType)
+    return self.sheetPayment.addPurchase(price, paymentType)
 
   def _pushStats(self, price: int, thing: Thing) -> bool:
     return self.sheetStats.addRow(
@@ -150,7 +145,11 @@ class Master(LocatorStorage):
     self,
     averageExtraPrice,
     things: List[Thing],
-  ) -> List[Thing]:
+  ) -> Dict[int, int]:
+    '''
+    Распределяет среднее значение доната (сверх фикс оплаты) за вещь
+    между купленными вещами для заполнения статистики
+    '''
     allFixed = len(
       [thing for thing in things if thing.price.type == Price.FREE]) == 0
     thingsFinalPrice = dict.fromkeys([thing.article for thing in things])
@@ -180,9 +179,7 @@ class Master(LocatorStorage):
       [thing for thing in things if thing.price.type == Price.FREE])
     allFixed = (countFreePrice == 0)
     count = countFreePrice if not allFixed else countFixedPrice
-    averageExtraPrice = ((donate - sumFixedPrice) /
-                         count) if donate != sumFixedPrice else 0
-    return averageExtraPrice
+    return (donate - sumFixedPrice) / count
 
   async def sendDailyInfoToGroup(self):
     await send_message(

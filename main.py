@@ -102,8 +102,8 @@ async def main():
   vk.start()
 
   # regular info
-  #regularInfo = locator.regularInfo()
-  #asyncio.create_task(regularInfo.start())
+  regularInfo = locator.regularInfo()
+  asyncio.create_task(regularInfo.start())
 
   # run
   logger.info('Firecamp bot started')

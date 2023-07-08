@@ -57,8 +57,8 @@ class Config:
   def googleSpreadsheet(self) -> str:
     return self._paramOrNone('google_spreadsheet', str)
 
-  def googleSheet(self) -> str:
-    return self._paramOrNone('google_sheet', str)
+  def googleSheetPayment(self) -> str:
+    return self._paramOrNone('google_sheet_payment', str)
 
   def googleSheetStats(self) -> str:
     return self._paramOrNone('google_sheet_stats', str)
