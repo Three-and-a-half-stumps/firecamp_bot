@@ -130,7 +130,7 @@ class User(TgState, LocatorStorage):
           P(f'Вещи {", ".join(isSold)} успешно проданы!', emoji='ok') + '\n\n' +
           self.info.resultsOfLifetime(isSold))
         self.send(
-          P(f'Вещи {", ".join(isNotSold)} продать не удалось. Обратитесь к фиксикам',
+          P(f'Вещи {", ".join(isNotSold)} не удалось удалить из вк. Обратитесь к фиксикам',
             emoji='fail'))
       await self.resetTgState()
 

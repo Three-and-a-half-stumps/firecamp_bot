@@ -107,12 +107,5 @@ global_command_list = [
       'handleCountThingsOnRail',
       True,
     ),
-    (
-      'daily',
-      '/daily',
-      'Узнать общую информацию на сегодня',
-      'handleDaily',
-      True,
-    ),
   ]
 ]

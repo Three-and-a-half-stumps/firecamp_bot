@@ -74,7 +74,7 @@ class Master(LocatorStorage):
     thing = self.repo.getThing(article)
     if thing is None:
       return False
-    return self.vk.removeProduct(self.repo.removeThing(article).vkId)
+    return self.vk.removeProduct(thing.vkId)
 
   def sellThings(
     self,

@@ -70,10 +70,13 @@ class Vk(LocatorStorage):
     )
 
   def removeProduct(self, vkId: int) -> bool:
-    return self.api.market.delete(
-      item_id=vkId,
-      owner_id=self.groupId,
-    ) == 1
+    try:
+      return self.api.market.delete(
+         item_id=vkId,
+         owner_id=self.groupId,
+         ) == 1
+    except Exception:
+      raise Exception('Removing product from vk error.')
 
   def _getPrice(self, price: Price) -> int:
     if price.type == Price.FREE:
