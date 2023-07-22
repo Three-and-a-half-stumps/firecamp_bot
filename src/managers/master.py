@@ -1,11 +1,11 @@
 import asyncio
 import datetime as dt
 
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from src.domain.locator import LocatorStorage, Locator
 from src.domain.models.thing import Thing, Price
-from src.managers.sheet.sheet import PaymentType
+from src.managers.sheet.sheet_payment import PaymentType
 from src.utils.tg.piece import P
 from src.utils.tg.send_message import send_message
 
@@ -16,7 +16,8 @@ class Master(LocatorStorage):
     super().__init__(locator)
     self.repo = self.locator.repo()
     self.vk = self.locator.vk()
-    self.sheet = self.locator.sheet()
+    self.sheetPayment = self.locator.sheetPayment()
+    self.sheetStats = self.locator.sheetStats()
     self.config = self.locator.config()
 
   def newThing(self, thing: Thing) -> Optional[int]:
@@ -40,7 +41,8 @@ class Master(LocatorStorage):
       return False
     thing.name = newName
     thing.description = newDescription
-    self.vk.removeProduct(thing.vkId)
+    if not self.vk.removeProduct(thing.vkId):
+      return False
     newVkId = self.vk.addProduct(thing)
     if newVkId is None:
       self.repo.removeThing(article)
@@ -72,20 +74,31 @@ class Master(LocatorStorage):
     thing = self.repo.getThing(article)
     if thing is None:
       return False
-    self.vk.removeProduct(thing.vkId)
-    self.repo.removeThing(article)
-    return True
+    return self.vk.removeProduct(thing.vkId)
 
-  def sellThing(
+  def sellThings(
     self,
-    price: int,
+    donate: int,
     paymentType: PaymentType,
-    article: int = None,
-  ) -> bool:
-    if article is None or self.removeThing(article):
-      self.sheet.addPurchase(price, paymentType)
-      return True
-    return False
+    articles: List[int],
+  ):
+    self.addPurchase(price=donate, paymentType=paymentType)
+    things = [self.getThing(a) for a in articles]
+    averageExtraPrice = self._averageExtraPrice(things, donate)
+    thingsFinalPrice = self._distributedDonate(averageExtraPrice, things)
+    isNotSold = []
+    isSold = []
+    for article, price in thingsFinalPrice.items():
+      thing = self.getThing(article)
+      self._pushStats(
+        price=price,
+        thing=thing,
+      )
+      if self.removeThing(article):
+        isSold.append((article, thing.lifetime()))
+      else:
+        isNotSold.append(article)
+    return isSold, isNotSold
 
   def getAllThings(self) -> List[Thing]:
     return self.repo.getAllThings()
@@ -93,10 +106,10 @@ class Master(LocatorStorage):
   def getCountAllThings(self) -> int:
     return len(self.getAllThings())
 
-  def getThingsOnRail(self, rail: int) -> List[Thing]:
+  def getThingsOnRail(self, rail: str) -> List[Thing]:
     return self.repo.getThingsOnRail(rail)
 
-  def getCountThingsOnRail(self, rail: int) -> int:
+  def getCountThingsOnRail(self, rail: str) -> int:
     return len(self.getThingsOnRail(rail))
 
   def getOverdueThings(self) -> List[Thing]:
@@ -112,6 +125,61 @@ class Master(LocatorStorage):
           emoji='infoglob',
         ),
       ))
+
+  def addPurchase(
+    self,
+    price: int,
+    paymentType: PaymentType,
+  ):
+    return self.sheetPayment.addPurchase(price, paymentType)
+
+  def _pushStats(self, price: int, thing: Thing) -> bool:
+    return self.sheetStats.addRow(
+      thing=thing,
+      price=price,
+      countOnRail=self.getCountThingsOnRail(thing.rail),
+      countAll=self.getCountAllThings(),
+    )
+
+  def _distributedDonate(
+    self,
+    averageExtraPrice,
+    things: List[Thing],
+  ) -> Dict[int, int]:
+    '''
+    Распределяет среднее значение доната (сверх фикс оплаты) за вещь
+    между купленными вещами для заполнения статистики
+    '''
+    allFixed = len(
+      [thing for thing in things if thing.price.type == Price.FREE]) == 0
+    thingsFinalPrice = dict.fromkeys([thing.article for thing in things])
+    for thing in things:
+      match thing.price.type:
+        case Price.FREE:
+          thingsFinalPrice[thing.article] = averageExtraPrice
+        case Price.DEFAULT_FIXED:
+          thingsFinalPrice[thing.article] = self.config.defaultFixedPrice() + (
+            averageExtraPrice if allFixed else 0)
+        case Price.FIXED:
+          thingsFinalPrice[thing.article] = thing.price.fixedPrice + (
+            averageExtraPrice if allFixed else 0)
+        case _:
+          raise Exception('Price type error.')
+    return thingsFinalPrice
+
+  def _averageExtraPrice(self, things: List[Thing], donate: int):
+    thingsFixedPrice = [
+      thing.price.fixedPrice or self.config.defaultFixedPrice()
+      for thing in things
+      if thing.price.type != Price.FREE
+    ]
+    sumFixedPrice = sum(thingsFixedPrice)
+    countFixedPrice = len(thingsFixedPrice)
+    countFreePrice = len(
+      [thing for thing in things if thing.price.type == Price.FREE])
+    allFixed = (countFreePrice == 0)
+    count = countFreePrice if not allFixed else countFixedPrice
+    return (donate - sumFixedPrice) / count
 
   async def sendDailyInfoToGroup(self):
     await send_message(

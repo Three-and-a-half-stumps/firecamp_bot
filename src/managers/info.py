@@ -1,5 +1,5 @@
 import datetime as dt
-from typing import Optional
+from typing import Optional, List, Tuple
 
 from src.domain.locator import LocatorStorage, Locator
 from src.utils.tg.piece import Pieces, P
@@ -7,12 +7,12 @@ from src.utils.tg.piece import Pieces, P
 
 class InfoManager(LocatorStorage):
   """
-  Собирает информация по всей программе
+  Собирает информацию по всей программе
   """
 
   def __init__(self, locator: Locator):
     super().__init__(locator)
-    self.sheet = self.locator.sheet()
+    self.sheetPayment = self.locator.sheetPayment()
     self.repo = self.locator.repo()
     self.config = self.locator.config()
 
@@ -66,6 +66,17 @@ class InfoManager(LocatorStorage):
       overdue = P('Просрочено: ') + overdue
     return (title + '\n\n' + month + '\n' + money + '\n' + things + '\n' +
             overdue)
+
+  def resultsOfLifetime(self, isSold: List[Tuple[int, int]]) -> str:
+    '''
+    Требуется список из артикулов и lifetime (срок жизни)
+    '''
+    print(isSold[0][0])
+    return ('Итоги жизни вещей:\n' + '\n'.join([
+      f'{thing[0]}: ' +
+      (f'{thing[1]} д.' if thing[1] is not None else 'неизвестно')
+      for thing in isSold
+    ]))
 
   @staticmethod
   def today() -> str:

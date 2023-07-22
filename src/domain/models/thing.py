@@ -4,6 +4,7 @@ from typing import Optional, Dict, Any
 
 from src.utils.notifier import Notifier
 from src.utils.serializable import Serializable
+from src.utils.datetime.utils import cut_time
 
 
 class Category:
@@ -63,6 +64,11 @@ class Price(Serializable):
 
 
 class Thing(Serializable, Notifier):
+
+  def lifetime(self) -> Optional[int]:
+    return (
+      cut_time(dt.datetime.now()) -
+      cut_time(self.timestamp)).days if self.timestamp is not None else None
 
   def serialize(self) -> Dict[str, Any]:
     return {

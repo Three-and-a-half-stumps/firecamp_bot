@@ -22,6 +22,14 @@ def datetime_copy_with(
   )
 
 
+def cut_time(timestamp: dt.datetime):
+  return dt.datetime(
+    year=timestamp.year,
+    month=timestamp.month,
+    day=timestamp.day,
+  )
+
+
 def is_today(timestamp: dt.datetime):
   return is_same_day(dt.datetime.today(), timestamp)
 

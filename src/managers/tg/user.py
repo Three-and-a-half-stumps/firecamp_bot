@@ -4,7 +4,7 @@ from telebot.async_telebot import AsyncTeleBot
 from telebot.types import CallbackQuery, Message
 
 from src.domain.locator import LocatorStorage, Locator
-from src.domain.models.thing import Thing
+from src.domain.models.thing import Thing, Price
 from src.utils.tg.piece import P
 from src.utils.tg.send_message import send_message
 from src.utils.tg.tg_destination import TgDestination
@@ -115,20 +115,23 @@ class User(TgState, LocatorStorage):
       return
 
     async def formEntered(data):
-      isNotSold = data[0][0] if not self.master.sellThing(
-        price=data[1],
+      isSold, isNotSold = self.master.sellThings(
+        donate=data[1],
         paymentType=data[2],
-        article=data[0][0],
-      ) else None
-      for i in range(1, len(data[0])):
-        isNotSold = data[0][i] if not self.master.removeThing(
-          data[0][i]) else None
-        if isNotSold:
-          break
-      if not isNotSold:
-        self.send(P('Вещи успешно проданы!', emoji='ok'))
+        articles=data[0],
+      )
+
+      if len(isNotSold) == 0:
+        self.send(
+          P('Вещи успешно проданы!', emoji='ok') + '\n\n' +
+          self.info.resultsOfLifetime(isSold))
       else:
-        self.send(P(f'На вещи {isNotSold} что-то пошло не так..', emoji='fail'))
+        self.send(
+          P(f'Вещи {", ".join(isSold)} успешно проданы!', emoji='ok') + '\n\n' +
+          self.info.resultsOfLifetime(isSold))
+        self.send(
+          P(f'Вещи {", ".join(isNotSold)} не удалось удалить из вк. Обратитесь к фиксикам',
+            emoji='fail'))
       await self.resetTgState()
 
     await self.setTgState(
@@ -149,8 +152,7 @@ class User(TgState, LocatorStorage):
       return
 
     async def formEntered(data):
-      isSold = self.master.sellThing(price=data[0], paymentType=data[1])
-      if isSold:
+      if self.master.addPurchase(price=data[0], paymentType=data[1]):
         self.send(P('Вещи успешно проданы!', emoji='ok'))
       else:
         self.send(P(f'Что-то пошло не так..', emoji='fail'))
